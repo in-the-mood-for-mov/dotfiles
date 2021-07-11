@@ -1,0 +1,17 @@
+[core]
+editor = emacs
+excludesfile = ~/.gitignore
+pager = less
+
+[color]
+ui = true
+
+[user]
+name = Simon Génier
+email = simon.genier@protonmail.com
+
+[fetch]
+prune = true
+
+[include]
+path = gitconfig-platform
