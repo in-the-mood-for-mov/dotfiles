@@ -21,6 +21,7 @@ function Update-Link([string]$SourcePath, [string]$TargetPath) {
 
 $emacsFolderName = if ($IsWindows) { ".emacs.d" } else { "emacs" }
 $links = [ordered]@{
+  "profile.ps1" = $Profile.CurrentUserAllHosts;
   "emacs" = Join-Path ([Environment]::GetFolderPath("ApplicationData")) $emacsFolderName;
   "gitconfig" = (Join-Path $HOME ".gitconfig");
   "gitignore" = (Join-Path $HOME ".gitignore");
