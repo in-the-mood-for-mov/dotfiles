@@ -120,6 +120,13 @@
   (evil-want-C-u-delete t)
   (evil-want-C-u-scroll t)
   (evil-want-keybinding nil)
+  (evil-digraphs-table-user '(((?z ?z) . #x21af) ; ↯
+                              ((?l ?l) . #x2113) ; ℓ
+                              ((?H ?H) . #x210b) ; ℋ
+                              ((?1 ?>) . #x2192) ; →
+                              ((?2 ?>) . #x21d2) ; ⇒
+                              ((?3 ?>) . #x21db) ; ⇛
+                              ))
   :config (evil-mode 1))
 
 (use-package evil-escape
