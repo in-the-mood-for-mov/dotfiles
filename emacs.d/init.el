@@ -12,6 +12,11 @@
 (setq display-time-default-load-average nil)
 (display-time-mode 1)
 
+(pcase system-type
+  ('darwin
+   (setq mac-option-modifier 'none)
+   (setq mac-command-modifier 'meta)))
+
 (set-face-attribute 'default nil :font "PragmataPro Liga" :height 180)
 (setq-default indent-tabs-mode nil)
 (set-default-coding-systems 'utf-8)
