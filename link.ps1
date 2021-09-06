@@ -19,8 +19,9 @@ function Update-Link([string]$SourcePath, [string]$TargetPath) {
   New-Item -ItemType "SymbolicLink" -Path $TargetPath -Value $sourceFullPath | Out-Null
 }
 
+$emacsFolderName = if ($IsWindows) { ".emacs.d" } else { "emacs" }
 $links = [ordered]@{
-  "emacs" = (Join-Path ([Environment]::GetFolderPath("ApplicationData")) "emacs");
+  "emacs" = Join-Path ([Environment]::GetFolderPath("ApplicationData")) $emacsFolderName;
   "gitconfig" = (Join-Path $HOME ".gitconfig");
   "gitignore" = (Join-Path $HOME ".gitignore");
 }
