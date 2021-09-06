@@ -13,5 +13,5 @@ email = simon.genier@protonmail.com
 [fetch]
 prune = true
 
-[include]
-path = gitconfig-platform
+[credential]
+helper = manager-core
