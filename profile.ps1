@@ -1,4 +1,4 @@
-Set-Alias -Name ls -Value exa.exe
+Set-Alias -Name ls -Value exa
 
 Set-Item -Path env:LANG -Value "en_CA.utf-8"
 
