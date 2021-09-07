@@ -176,6 +176,8 @@
 (use-package latex
   :ensure auctex
   :custom
+  (TeX-parse-self t)
+  (TeX-auto-save t)
   (tex-fontify-script nil)
   (font-latex-fontify-script nil)
   (font-latex-fontify-sectioning 'color)
