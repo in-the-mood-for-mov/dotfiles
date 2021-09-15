@@ -14,3 +14,11 @@ function Prompt {
 }
 
 Import-Module posh-git
+
+if (Get-Command "opam" -ErrorAction SilentlyContinue) {
+  foreach ($line in (opam env --shell zsh)) {
+    if ($line -match "^(?<var>\w+)='(?<value>.*)'") {
+      [Environment]::SetEnvironmentVariable($Matches.var, $Matches.value, "Process")
+    }
+  }
+}
