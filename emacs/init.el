@@ -184,6 +184,27 @@
   :mode (("\\.tex\\'" . tex-mode))
   :init (add-hook 'TeX-mode-hook #'auto-fill-mode))
 
+(use-package lsp-mode
+  :ensure t
+  :init (setq lsp-keymap-prefix "C-;")
+  :hook
+  ((haskell-mode . lsp)
+   (lsp-mode . lsp-enable-which-key-integration))
+  :commands lsp)
+
+(use-package lsp-ui
+  :ensure t
+  :commands lsp-ui-mode)
+
+(use-package lsp-haskell
+  :ensure t)
+
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode)
+  :custom
+  (flycheck-check-syntax-automatically '(save new-line mode-enabled)))
+
 (use-package evil-collection
   :ensure t
   :after evil
