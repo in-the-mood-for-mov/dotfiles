@@ -12,6 +12,8 @@
 (setq display-time-default-load-average nil)
 (display-time-mode 1)
 
+(setq make-backup-files nil)
+
 (pcase system-type
   ('darwin
    (setq mac-option-modifier 'none)
