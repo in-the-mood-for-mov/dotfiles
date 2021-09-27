@@ -1,16 +1,22 @@
-Set-Alias -Name ls -Value exa
-
-Set-Item -Path env:LANG -Value "en_CA.utf-8"
-
+Set-Alias -Name ls -Value Get-ChildItem
+$env:LANG = "en_CA.utf-8"
 Set-PSReadlineOption -EditMode Emacs -BellStyle Visual
 [Console]::TreatControlCAsInput = $True
 
-function Prompt {
-    param ()
+Invoke-Command {
+  $applicationData = [Environment]::GetFolderPath("ApplicationData")
 
-    $currentPath = $ExecutionContext.SessionState.Path.CurrentLocation
-    $currentFolder = Split-Path -Leaf -Path $currentPath
-    "$($currentFolder)\ 🍕 $('>' * $($NestedPromptLevel))"
+  $env:RUSTUP_HOME = Join-Path $applicationData "rustup"
+  $env:CARGO_HOME = Join-Path $applicationData "cargo"
+  $env:PATH = "$(Join-Path $env:CARGO_HOME "bin")$([IO.Path]::PathSeparator)$env:PATH"
+}
+
+function Prompt {
+  param ()
+
+  $currentPath = $ExecutionContext.SessionState.Path.CurrentLocation
+  $currentFolder = Split-Path -Leaf -Path $currentPath
+  "$($currentFolder)\ 🍕 $('>' * $($NestedPromptLevel))"
 }
 
 Import-Module posh-git

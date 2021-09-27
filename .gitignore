@@ -1,4 +1,5 @@
 /emacs/.*
+/emacs/*.s
 /emacs/auto-save-list/
 /emacs/elpa/
 /emacs/projectile*
