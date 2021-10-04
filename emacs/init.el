@@ -34,7 +34,7 @@
                    (read (current-buffer)))
                (kill-buffer buffer))))
   (setq exec-path (cl-union exec-path path))
-  (setenv "PATH" (mapconcat #'identity exec-path ";")))
+  (setenv "PATH" (mapconcat #'identity exec-path path-separator)))
 
 (let* ((buffer (find-file-noselect (concat user-emacs-directory "env.s")))
        (env (unwind-protect
