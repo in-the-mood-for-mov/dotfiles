@@ -119,13 +119,22 @@
 
 (use-package consult
   :ensure t
+  :config
+  (consult-customize
+   consult-buffer consult-ripgrep consult-fd
+   :preview-key (kbd "M-."))
   :custom
-  (consult-preview-key (kbd "M-."))
   (consult-project-root-function #'projectile-project-root)
   :bind (("C-x b" . consult-buffer)
          ("M-l" . consult-line)
          ("C-x s" . consult-ripgrep)
          ("C-x f" . consult-fd)))
+
+(use-package consult-dir
+  :ensure t
+  :custom
+  (consult-dir-project-list-function nil)
+  :bind (("C-x C-d" . consult-dir)))
 
 (use-package marginalia
   :ensure t
