@@ -15,3 +15,6 @@ prune = true
 
 [credential]
 helper = manager-core
+
+[init]
+defaultBranch = trunk
