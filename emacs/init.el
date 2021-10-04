@@ -119,6 +119,7 @@
 
 (use-package consult
   :ensure t
+  :commands (consult--directory-prompt)
   :config
   (consult-customize
    consult-buffer consult-ripgrep consult-fd
