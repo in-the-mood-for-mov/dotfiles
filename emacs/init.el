@@ -23,11 +23,13 @@
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
 
-(setq indent-tabs-mode nil
-      fill-column 80)
+(setq-default indent-tabs-mode nil
+              fill-column 80)
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file t)
+
+(add-hook 'before-save-hook 'whitespace-cleanup)
 
 (let* ((buffer (find-file-noselect (concat user-emacs-directory "path.s")))
        (path (unwind-protect
@@ -128,7 +130,14 @@
   :ensure t
   :custom
   (consult-dir-project-list-function nil)
-  :bind (("C-x C-d" . consult-dir)))
+  (consult-dir-default-command #'consult-fd)
+  (consult-dir-sources (list #'consult-dir--source-bookmark
+                             #'consult-dir--recentf
+                             #'consult-dir--source-project))
+  :bind (("C-x C-d" . consult-dir)
+         :map selectrum-minibuffer-map
+         ("C-x C-d" . consult-dir)
+         ("C-x C-j" . consult-dir-jump-file)))
 
 (use-package marginalia
   :ensure t
