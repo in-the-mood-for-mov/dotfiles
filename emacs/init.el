@@ -10,7 +10,6 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (tooltip-mode -1)
-(display-time-mode 1)
 (column-number-mode)
 (global-display-line-numbers-mode)
 
@@ -65,16 +64,17 @@
 (use-package recentf
   :config (recentf-mode 1))
 
-(use-package org
-  :ensure org-plus-contrib
-  :mode (("\\.org\\'" . org-mode)))
-
 (use-package nano-theme
   :ensure t
   :config (load-theme 'nano-dark t))
 
 (use-package general
   :ensure t)
+
+(use-package delight
+  :ensure t)
+
+(delight '((eldoc-mode nil "eldoc")))
 
 (use-package selectrum
   :ensure t
@@ -88,6 +88,7 @@
 
 (use-package projectile
   :ensure t
+  :delight '(:eval (concat " ‹" (projectile-project-name) "›"))
   :commands (projectile-project-root)
   :custom (projectile-completion-system 'default)
   :config (projectile-mode 1)
@@ -132,8 +133,8 @@
   (consult-dir-project-list-function nil)
   (consult-dir-default-command #'consult-fd)
   (consult-dir-sources (list #'consult-dir--source-bookmark
-                             #'consult-dir--recentf
-                             #'consult-dir--source-project))
+                             #'consult-dir--source-project
+                             #'consult-dir--source-recentf))
   :bind (("C-x C-d" . consult-dir)
          :map selectrum-minibuffer-map
          ("C-x C-d" . consult-dir)
@@ -157,16 +158,19 @@
 
 (use-package which-key
   :ensure t
+  :delight
   :custom (which-key-idle-delay 0.4)
   :config (which-key-mode))
 
 (use-package vi-tilde-fringe
   :ensure t
+  :delight
   :config (global-vi-tilde-fringe-mode 1))
 
 (use-package evil
   :ensure t
   :custom
+  (evil-mode-line-format nil)
   (evil-want-C-i-jump nil)
   (evil-want-C-u-delete t)
   (evil-want-C-u-scroll t)
@@ -182,6 +186,7 @@
 
 (use-package evil-escape
   :ensure t
+  :delight
   :config (evil-escape-mode 1))
 
 (use-package evil-nerd-commenter
@@ -199,6 +204,7 @@
 
 (use-package smartparens
   :ensure t
+  :delight
   :config
   (require 'smartparens-config)
   (show-smartparens-global-mode 1)
@@ -206,6 +212,7 @@
 
 (use-package evil-cleverparens
   :ensure t
+  :delight
   :custom (evil-cleverparens-use-additional-movement-keys nil)
   :config (require 'evil-cleverparens-text-objects)
   :hook ((smartparens-enabled) . evil-cleverparens-mode))
@@ -213,6 +220,10 @@
 (use-package magit
   :ensure t
   :bind (("C-x g" . magit-status)))
+
+(use-package org
+  :ensure org-plus-contrib
+  :mode (("\\.org\\'" . org-mode)))
 
 (use-package tuareg
   :ensure t
@@ -245,6 +256,7 @@
 
 (use-package lsp-mode
   :ensure t
+  :delight
   :init (setq lsp-keymap-prefix "C-;")
   :hook
   ((haskell-mode . lsp)
@@ -260,6 +272,7 @@
 
 (use-package flycheck
   :ensure t
+  :delight
   :init (global-flycheck-mode)
   :custom
   (flycheck-check-syntax-automatically '(save new-line mode-enabled))
@@ -280,3 +293,19 @@
  :states '(normal visual)
  :prefix "SPC"
  ";" #'evilnc-comment-operator)
+
+(setq-default mode-line-format
+              '("%e"
+                mode-line-front-space
+                mode-line-mule-info
+                mode-line-client
+                mode-line-modified
+                mode-line-remote
+                mode-line-frame-identification
+                mode-line-buffer-identification
+                "   "
+                mode-line-position
+                "  "
+                mode-line-modes
+                mode-line-misc-info
+                mode-line-end-spaces))
