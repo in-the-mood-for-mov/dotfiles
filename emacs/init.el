@@ -2,14 +2,17 @@
 
 (setq inhibit-startup-message t
       visible-bell t
-      default-frame-alist '((undecorated . t))
+      default-frame-alist '((undecorated . t)
+                            (vertical-scroll-bars . nil)
+                            (internal-border-width . 40))
       make-backup-files nil)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (tooltip-mode -1)
 (display-time-mode 1)
-(set-fringe-mode 20)
+(column-number-mode)
+(global-display-line-numbers-mode)
 
 (pcase system-type
   ('darwin
@@ -17,12 +20,11 @@
    (setq mac-command-modifier 'meta)))
 
 (set-face-attribute 'default nil :font "PragmataPro Liga" :height 180)
-(setq-default indent-tabs-mode nil)
+(set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
 
-(column-number-mode)
-(global-display-line-numbers-mode t)
-(setq-default fill-column 80)
+(setq indent-tabs-mode nil
+      fill-column 80)
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file t)
@@ -65,18 +67,9 @@
   :ensure org-plus-contrib
   :mode (("\\.org\\'" . org-mode)))
 
-(use-package doom-modeline
+(use-package nano-theme
   :ensure t
-  :custom
-  (doom-modeline-icon nil)
-  :config (doom-modeline-mode 1))
-
-(use-package doom-themes
-  :ensure t
-  :config
-  (load-theme 'doom-vibrant t)
-  (doom-themes-visual-bell-config)
-  (doom-themes-org-config))
+  :config (load-theme 'nano-dark t))
 
 (use-package general
   :ensure t)
