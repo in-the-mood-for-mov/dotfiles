@@ -278,14 +278,20 @@
   (flycheck-check-syntax-automatically '(save new-line mode-enabled))
   (flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
 
+(use-package geiser-gambit
+  :ensure t
+  :hook (((sheme-mode) . geiser-mode--maybe-activate)))
+
 (use-package evil-collection
   :ensure t
   :after evil
-  :commands (evil-collection-dired-setup
+  :commands (evil-collection-custom-setup
+             evil-collection-dired-setup
              evil-collection-magit-setup)
   :config
   (evil-collection-package-menu-setup))
 
+(with-eval-after-load 'custom (evil-collection-custom-setup))
 (with-eval-after-load 'dired (evil-collection-dired-setup))
 (with-eval-after-load 'magit (evil-collection-magit-setup))
 
