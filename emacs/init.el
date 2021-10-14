@@ -31,6 +31,7 @@
 (load custom-file t)
 
 (add-hook 'before-save-hook 'whitespace-cleanup)
+(add-to-list 'auto-mode-alist '("\\.\\(scm\\|sld\\)\\'" . scheme-mode))
 
 (let* ((buffer (find-file-noselect (concat user-emacs-directory "path.s")))
        (path (unwind-protect
