@@ -1,7 +1,9 @@
 ;; -*- lexical-binding: t -*-
 
 (setq inhibit-startup-message t
-      visible-bell t
+      initial-scratch-message ""
+      visible-bell nil
+      ring-bell-function 'ignore
       default-frame-alist '((undecorated . t)
                             (vertical-scroll-bars . nil)
                             (internal-border-width . 40))
