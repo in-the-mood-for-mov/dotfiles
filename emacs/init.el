@@ -64,6 +64,11 @@
 
 (require 'use-package)
 
+(use-package message
+  :commands message-mode
+  :config
+  (add-hook 'message-mode-hook #'(lambda () (abbrev-mode -1))))
+
 (use-package recentf
   :config (recentf-mode 1))
 
@@ -75,9 +80,10 @@
   :ensure t)
 
 (use-package delight
-  :ensure t)
-
-(delight '((eldoc-mode nil "eldoc")))
+  :ensure t
+  :config
+  (delight '((eldoc-mode nil "eldoc")
+             (auto-revert-mode nil "autorevert"))))
 
 (use-package selectrum
   :ensure t
@@ -183,8 +189,8 @@
                               ((?H ?H) . #x210b) ; ℋ
                               ((?1 ?>) . #x2192) ; →
                               ((?2 ?>) . #x21d2) ; ⇒
-                              ((?3 ?>) . #x21db) ; ⇛
-                              ))
+                              ((?3 ?>) . #x21db))) ; ⇛
+
   :config (evil-mode 1))
 
 (use-package evil-escape
@@ -205,23 +211,17 @@
  "s" #'evil-surround-region
  "S" #'evil-substitute)
 
-(use-package smartparens
-  :ensure t
-  :delight
-  :config
-  (require 'smartparens-config)
-  (show-smartparens-global-mode 1)
-  :hook ((emacs-lisp-mode) . smartparens-strict-mode))
-
-(use-package evil-cleverparens
-  :ensure t
-  :delight
-  :custom (evil-cleverparens-use-additional-movement-keys nil)
-  :config (require 'evil-cleverparens-text-objects)
-  :hook ((smartparens-enabled) . evil-cleverparens-mode))
+(use-package parinfer-rust-mode
+  :delight '(:eval (concat " "
+                           (pcase parinfer-rust--mode
+                            ("smart" "𝔰")
+                            ("indent" "𝔦")
+                            ("paren" "𝔭"))))
+  :hook (emacs-lisp-mode scheme-mode))
 
 (use-package magit
   :ensure t
+  :config (magit-auto-revert-mode)
   :bind (("C-x g" . magit-status)))
 
 (use-package org
