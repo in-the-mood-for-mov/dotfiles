@@ -72,9 +72,15 @@
 (use-package recentf
   :config (recentf-mode 1))
 
-(use-package nano-theme
+(use-package modus-themes
   :ensure t
-  :config (load-theme 'nano-dark t))
+  :init
+  (setq modus-themes-italic-constructs t
+        modus-themes-bold-constructs nil
+        modus-themes-syntax '(alt-syntax green-strings yellow-comments))
+  (modus-themes-load-themes)
+  :config
+  (modus-themes-load-vivendi))
 
 (use-package general
   :ensure t)
@@ -212,6 +218,7 @@
  "S" #'evil-substitute)
 
 (use-package parinfer-rust-mode
+  :ensure t
   :delight '(:eval (concat " "
                            (pcase parinfer-rust--mode
                             ("smart" "𝔰")
@@ -230,7 +237,9 @@
 
 (use-package tuareg
   :ensure t
-  :init (setq tuareg-indent-align-with-first-arg t)
+  :init
+  (setq tuareg-indent-align-with-first-arg t)
+  (add-hook 'tuareg-mode-hook #'rainbow-delimiters-mode)
   :mode (("\\.mli?\\'" . tuareg-mode)))
 
 (use-package merlin
