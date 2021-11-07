@@ -32,6 +32,8 @@
 
 (add-hook 'before-save-hook 'whitespace-cleanup)
 (add-to-list 'auto-mode-alist '("\\.\\(scm\\|sld\\)\\'" . scheme-mode))
+(eval-after-load "scheme"
+  #'(lambda () (put 'with-input-from-u8vector 'scheme-indent-function 1)))
 
 (let* ((buffer (find-file-noselect (concat user-emacs-directory "path.s")))
        (path (unwind-protect
@@ -70,6 +72,7 @@
   (add-hook 'message-mode-hook #'(lambda () (abbrev-mode -1))))
 
 (use-package recentf
+  :custom (recentf-max-saved-items 40)
   :config (recentf-mode 1))
 
 (use-package modus-themes
@@ -182,6 +185,9 @@
   :delight
   :config (global-vi-tilde-fringe-mode 1))
 
+(use-package undo-fu
+  :ensure t)
+
 (use-package evil
   :ensure t
   :custom
@@ -190,14 +196,22 @@
   (evil-want-C-u-delete t)
   (evil-want-C-u-scroll t)
   (evil-want-keybinding nil)
-  (evil-digraphs-table-user '(((?z ?z) . #x21af) ; ↯
+  (evil-symbol-word-search t)
+  (evil-digraphs-table-user '(((?_ ?0) . #x2080) ; ₀
+                              ((?_ ?1) . #x2081) ; ₁
+                              ((?_ ?2) . #x2082) ; ₂
+                              ((?z ?z) . #x21af) ; ↯
                               ((?l ?l) . #x2113) ; ℓ
                               ((?H ?H) . #x210b) ; ℋ
                               ((?1 ?>) . #x2192) ; →
                               ((?2 ?>) . #x21d2) ; ⇒
                               ((?3 ?>) . #x21db))) ; ⇛
+  :config
+  (defalias #'forward-evil-word #'forward-evil-symbol)
+  (evil-mode 1))
 
-  :config (evil-mode 1))
+(define-key evil-normal-state-map "u" 'undo-fu-only-undo)
+(define-key evil-normal-state-map "\C-r" 'undo-fu-only-redo)
 
 (use-package evil-escape
   :ensure t
@@ -273,6 +287,7 @@
   :hook
   ((haskell-mode . lsp)
    (lsp-mode . lsp-enable-which-key-integration))
+
   :commands lsp)
 
 (use-package lsp-ui
@@ -309,8 +324,7 @@
 
 (general-define-key
  :states '(normal visual)
- :prefix "SPC"
- ";" #'evilnc-comment-operator)
+ "C-;" #'evilnc-comment-operator)
 
 (setq-default mode-line-format
               '("%e"
