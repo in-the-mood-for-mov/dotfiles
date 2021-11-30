@@ -312,12 +312,14 @@
 (use-package evil-collection
   :ensure t
   :after evil
-  :commands (evil-collection-custom-setup
+  :commands (evil-collection-arc-mode-setup
+             evil-collection-custom-setup
              evil-collection-dired-setup
              evil-collection-magit-setup)
   :config
   (evil-collection-package-menu-setup))
 
+(with-eval-after-load 'arc-mode (evil-collection-arc-mode-setup))
 (with-eval-after-load 'custom (evil-collection-custom-setup))
 (with-eval-after-load 'dired (evil-collection-dired-setup))
 (with-eval-after-load 'magit (evil-collection-magit-setup))
