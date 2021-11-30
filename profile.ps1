@@ -15,6 +15,7 @@ Set-PSReadlineOption -EditMode Emacs -BellStyle Visual
   $env:CARGO_HOME = Join-Path $applicationData "cargo"
   AddToPath(Join-Path $env:CARGO_HOME "bin")
   $env:OPAMROOT = Join-Path $applicationData "opam"
+  AddToPath(Join-Path $HOME ".dotnet" "tools")
 }
 
 function Prompt {
