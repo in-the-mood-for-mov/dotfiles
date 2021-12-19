@@ -1,11 +1,15 @@
 #!/usr/bin/env pwsh
 
 function Update-Link([string]$SourcePath, [string]$TargetPath) {
+  $targetDir = $(Split-Path $TargetPath)
+  if (-not (Test-Path $targetDir)) {
+    New-Item -ItemType Directory $targetDir -ErrorAction SilentlyContinue | Out-Null
+  }
+
   if (Test-Path $TargetPath) {
     $targetFile = Get-Item -Force $TargetPath
 
     if ($null -eq $targetFile) {
-      New-Item -ItemType Directory $(Split-Path $TargetPath) -ErrorAction SilentlyContinue | Out-Null
     } elseif ([bool]($targetFile.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
       Remove-Item -Path $TargetPath -Force
     } else {
