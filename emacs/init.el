@@ -309,6 +309,10 @@
   :ensure t
   :hook (((sheme-mode) . geiser-mode--maybe-activate)))
 
+(use-package ahk-mode
+  :ensure t
+  :mode (("\\.ahk\\'" . ahk-mode)))
+
 (use-package evil-collection
   :ensure t
   :after evil
