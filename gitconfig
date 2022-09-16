@@ -11,10 +11,11 @@ name = Simon Génier
 email = simon.genier@protonmail.com
 
 [fetch]
-prune = true
-
-[credential]
-helper = manager-core
+	prune = true
 
 [init]
 defaultBranch = trunk
+[diff]
+	colorMoved = zebra
+[pull]
+	rebase = true

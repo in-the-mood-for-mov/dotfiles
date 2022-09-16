@@ -4,8 +4,7 @@
       initial-scratch-message ""
       visible-bell nil
       ring-bell-function 'ignore
-      default-frame-alist '((undecorated . t)
-                            (vertical-scroll-bars . nil)
+      default-frame-alist '((vertical-scroll-bars . nil)
                             (internal-border-width . 40))
       make-backup-files nil)
 (scroll-bar-mode -1)
@@ -20,7 +19,7 @@
    (setq mac-option-modifier 'none)
    (setq mac-command-modifier 'meta)))
 
-(set-face-attribute 'default nil :font "PragmataPro Liga" :height 180)
+(set-face-attribute 'default nil :font "Iosevka Fixed" :height 210)
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
 
@@ -114,7 +113,7 @@
 
 (defun consult--fd-builder (input)
   (pcase-let* ((`(,arg . ,opts) (consult--command-split input))
-               (`(,re . ,hl) (funcall consult--regexp-compiler arg 'extended)))
+               (`(,re . ,hl) (funcall consult--regexp-compiler arg 'extended t)))
     (when re
       `(:command
         ("fd"
@@ -258,7 +257,8 @@
 
 (use-package merlin
   :ensure t
-  :hook (tuareg-mode . merlin-mode))
+  :hook (tuareg-mode . merlin-mode)
+  :bind (:map merlin-mode-map ("C-c C-e" . merlin-error-next)))
 
 (use-package latex
   :ensure auctex
@@ -308,6 +308,10 @@
 (use-package geiser-gambit
   :ensure t
   :hook (((sheme-mode) . geiser-mode--maybe-activate)))
+
+(use-package typer-mode
+  :load-path "typer"
+  :mode (("\\.typer\\'" . typer-mode)))
 
 (use-package ahk-mode
   :ensure t
