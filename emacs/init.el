@@ -19,12 +19,19 @@
    (setq mac-option-modifier 'none)
    (setq mac-command-modifier 'meta)))
 
-(set-face-attribute 'default nil :font "Iosevka Fixed" :height 210)
+(defvar my/face-height
+  (pcase system-type
+    ('darwin 210)
+    ('windows-nt 170)))
+
+(set-face-attribute 'default nil :font "Iosevka Term" :height my/face-height)
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
 
 (setq-default indent-tabs-mode nil
               fill-column 80)
+
+(define-key input-decode-map "\C-i" [C-i])
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file t)
@@ -53,9 +60,11 @@
     (pcase-let ((`(,name . ,value) pair))
       (setenv name value))))
 
+; Welcome to the stone age
+(define-key input-decode-map "\C-i" [C-i])
+
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("org" . "https://orgmode.org/elpa/")
                          ("elpa" . "https://elpa.gnu.org/packages/")))
 (package-initialize)
 (unless package-archive-contents
@@ -63,7 +72,8 @@
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 
-(require 'use-package)
+(eval-when-compile
+  (require 'use-package))
 
 (use-package message
   :commands message-mode
@@ -111,38 +121,19 @@
   :config (projectile-mode 1)
   :bind-keymap ("C-x p" . projectile-command-map))
 
-(defun consult--fd-builder (input)
-  (pcase-let* ((`(,arg . ,opts) (consult--command-split input))
-               (`(,re . ,hl) (funcall consult--regexp-compiler arg 'extended t)))
-    (when re
-      `(:command
-        ("fd"
-         "--color=never"
-         "--full-path"
-         ,(consult--join-regexps re 'extended)
-         ,@opts)
-        :highlight
-        ,hl))))
-
-(defun consult-fd (&optional dir initial)
-  (interactive "P")
-  (let* ((prompt-dir (consult--directory-prompt "Fd" dir))
-         (default-directory (cdr prompt-dir)))
-    (find-file (consult--find (car prompt-dir) #'consult--fd-builder initial))))
-
 (use-package consult
   :ensure t
   :commands (consult--directory-prompt)
   :config
   (consult-customize
-   consult-buffer consult-ripgrep consult-fd
+   consult-buffer consult-ripgrep consult-find
    :preview-key (kbd "M-."))
   :custom
   (consult-project-root-function #'projectile-project-root)
   :bind (("C-x b" . consult-buffer)
          ("M-l" . consult-line)
          ("C-x s" . consult-ripgrep)
-         ("C-x f" . consult-fd)))
+         ("C-x f" . consult-find)))
 
 (use-package consult-dir
   :ensure t
@@ -171,7 +162,7 @@
 
 (use-package rainbow-delimiters
   :ensure t
-  :hook ((emacs-lisp-mode) . rainbow-delimiters-mode))
+  :hook ((emacs-lisp-mode TeX-mode) . rainbow-delimiters-mode))
 
 (use-package which-key
   :ensure t
@@ -199,14 +190,14 @@
   (evil-digraphs-table-user '(((?_ ?0) . #x2080) ; ₀
                               ((?_ ?1) . #x2081) ; ₁
                               ((?_ ?2) . #x2082) ; ₂
-                              ((?z ?z) . #x21af) ; ↯
                               ((?l ?l) . #x2113) ; ℓ
-                              ((?H ?H) . #x210b) ; ℋ
                               ((?1 ?>) . #x2192) ; →
+                              ((?z ?z) . #x21af) ; ↯
                               ((?2 ?>) . #x21d2) ; ⇒
                               ((?3 ?>) . #x21db))) ; ⇛
   :config
   (defalias #'forward-evil-word #'forward-evil-symbol)
+  (define-key evil-motion-state-map (kbd "<C-i>") 'evil-jump-forward)
   (evil-mode 1))
 
 (define-key evil-normal-state-map "u" 'undo-fu-only-undo)
@@ -234,9 +225,9 @@
   :ensure t
   :delight '(:eval (concat " "
                            (pcase parinfer-rust--mode
-                            ("smart" "𝔰")
-                            ("indent" "𝔦")
-                            ("paren" "𝔭"))))
+                            ("smart" "𝕤")
+                            ("indent" "𝕚")
+                            ("paren" "𝕡"))))
   :hook (emacs-lisp-mode scheme-mode))
 
 (use-package magit
@@ -245,8 +236,23 @@
   :bind (("C-x g" . magit-status)))
 
 (use-package org
-  :ensure org-plus-contrib
+  :ensure t
   :mode (("\\.org\\'" . org-mode)))
+
+(use-package json-mode
+  :ensure t
+  :mode ("\\.json\\'" "\\.avsc\\'")
+  :config
+  (add-hook
+   'json-mode-hook
+   #'(lambda ()
+       (make-local-variable 'js-indent-level)
+       (setq js-indent-level 2))))
+
+(use-package dhall-mode
+  :ensure t
+  :config
+  (setq dhall-use-header-line nil))
 
 (use-package tuareg
   :ensure t
@@ -269,7 +275,8 @@
   (font-latex-fontify-script nil)
   (font-latex-fontify-sectioning 'color)
   :mode (("\\.tex\\'" . tex-mode))
-  :init (add-hook 'TeX-mode-hook #'auto-fill-mode))
+  :init (add-hook 'TeX-mode-hook #'auto-fill-mode)
+  :config (define-key TeX-mode-map "$" nil))
 
 (use-package powershell
   :ensure t
@@ -284,15 +291,16 @@
   :ensure t
   :delight
   :init (setq lsp-keymap-prefix "C-;")
+  :commands lsp
   :hook
-  ((haskell-mode . lsp)
-   (lsp-mode . lsp-enable-which-key-integration))
-
-  :commands lsp)
+  ((dhall-mode . lsp)
+   (haskell-mode . lsp)
+   (lsp-mode . lsp-enable-which-key-integration)))
 
 (use-package lsp-ui
   :ensure t
-  :commands lsp-ui-mode)
+  :commands lsp-ui-mode
+  :hook ((lsp-mode-hook . lsp-ui-mode)))
 
 (use-package lsp-haskell
   :ensure t)
