@@ -4,16 +4,10 @@
       initial-scratch-message ""
       visible-bell nil
       ring-bell-function 'ignore
-      default-frame-alist '((vertical-scroll-bars . nil)
-                            (internal-border-width . 40))
       make-backup-files nil)
-(scroll-bar-mode -1)
-(tool-bar-mode -1)
-(menu-bar-mode -1)
-(tooltip-mode -1)
-(column-number-mode)
-(global-display-line-numbers-mode)
 
+(defvar mac-option-modifier)
+(defvar mac-command-modifier)
 (pcase system-type
   ('darwin
    (setq mac-option-modifier 'none)
@@ -23,23 +17,13 @@
   (pcase system-type
     ('darwin 210)
     ('windows-nt 170)))
-
 (set-face-attribute 'default nil :font "Iosevka Term" :height my/face-height)
-(set-language-environment "UTF-8")
-(set-default-coding-systems 'utf-8)
-
-(setq-default indent-tabs-mode nil
-              fill-column 80)
+(set-face-attribute 'fixed-pitch nil :family 'unspecified :inherit 'default)
 
 (define-key input-decode-map "\C-i" [C-i])
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file t)
-
-(add-hook 'before-save-hook 'whitespace-cleanup)
-(add-to-list 'auto-mode-alist '("\\.\\(scm\\|sld\\)\\'" . scheme-mode))
-(eval-after-load "scheme"
-  #'(lambda () (put 'with-input-from-u8vector 'scheme-indent-function 1)))
 
 (let* ((buffer (find-file-noselect (concat user-emacs-directory "path.s")))
        (path (unwind-protect
@@ -72,24 +56,37 @@
 (eval-when-compile
   (require 'use-package))
 
-(use-package message
-  :commands message-mode
+(use-package auto-compile
+  :ensure t
+  :custom
+  (load-prefer-newer t)
   :config
-  (add-hook 'message-mode-hook #'(lambda () (abbrev-mode -1))))
+  (auto-compile-on-load-mode)
+  (auto-compile-on-save-mode))
+
+(use-package simple
+  :custom
+  (read-extended-command-predicate #'command-completion-default-include-p)
+  :config (column-number-mode))
+
+(use-package display-line-numbers
+  :config (global-display-line-numbers-mode))
 
 (use-package recentf
   :custom (recentf-max-saved-items 40)
   :config (recentf-mode 1))
 
-(use-package modus-themes
+(use-package whitespace
+  :hook (before-save . whitespace-cleanup))
+
+(use-package solarized-theme
   :ensure t
-  :init
-  (setq modus-themes-italic-constructs t
-        modus-themes-bold-constructs nil
-        modus-themes-syntax '(alt-syntax green-strings yellow-comments))
-  (modus-themes-load-themes)
-  :config
-  (modus-themes-load-vivendi))
+  :custom
+  (solarized-distinct-fringe-background t)
+  (solarized-use-variable-pitch nil)
+  (solarized-high-contrast-mode-line t)
+  (solarized-use-more-italic t)
+  :config (load-theme 'solarized-dark-high-contrast t))
 
 (use-package general
   :ensure t)
@@ -99,6 +96,19 @@
   :config
   (delight '((eldoc-mode nil "eldoc")
              (auto-revert-mode nil "autorevert"))))
+
+(use-package corfu
+  :ensure t
+  :custom (corfu-auto t)
+  :general
+  (:keymaps 'corfu-map
+            "\r" nil)
+  :config (global-corfu-mode))
+
+(use-package corfu-popupinfo
+  :ensure corfu
+  :custom (corfu-popupinfo-delay t)
+  :config (corfu-popupinfo-mode))
 
 (use-package orderless
   :ensure t
@@ -205,30 +215,27 @@
 
 (use-package evil-nerd-commenter
   :ensure t
+  :general (:states '(normal visual) "C-;" #'evilnc-comment-operator)
   :commands (evilnc-comment-operator))
 
 (use-package evil-surround
   :ensure t
+  :general (:states '(visual) "s" #'evil-surround-region "S" #'evil-substitute)
   :config (global-evil-surround-mode 1))
-
-(general-define-key
- :states '(visual)
- "s" #'evil-surround-region
- "S" #'evil-substitute)
 
 (use-package parinfer-rust-mode
   :ensure t
-  :delight '(:eval (concat " "
-                           (pcase parinfer-rust--mode
-                            ("smart" "𝕤")
-                            ("indent" "𝕚")
-                            ("paren" "𝕡"))))
   :hook (emacs-lisp-mode scheme-mode))
 
 (use-package magit
   :ensure t
   :config (magit-auto-revert-mode)
   :bind (("C-x g" . magit-status)))
+
+(use-package message
+  :commands message-mode
+  :config
+  (add-hook 'message-mode-hook #'(lambda () (abbrev-mode -1))))
 
 (use-package org
   :ensure t
@@ -310,9 +317,18 @@
                                 tex-chktex
                                 tex-lacheck)))
 
+(use-package scheme
+  :mode "\\.\\(scm\\|sld\\)\\'"
+  :config
+  (put 'with-input-from-u8vector 'scheme-indent-function 1))
+
 (use-package geiser-gambit
   :ensure t
   :hook (((sheme-mode) . geiser-mode--maybe-activate)))
+
+(use-package macrostep
+  :ensure t
+  :general (:keymaps 'lisp-mode-shared-map "C-c C-e" #'macrostep-expand))
 
 (use-package typer-mode
   :load-path "typer"
@@ -325,39 +341,39 @@
 (use-package evil-collection
   :ensure t
   :after evil
-  :commands (evil-collection-arc-mode-setup
-             evil-collection-custom-setup
-             evil-collection-dired-setup
-             evil-collection-magit-setup)
   :config
-  (evil-collection-package-menu-setup))
+  (evil-collection-package-menu-setup)
+  (with-eval-after-load 'arc-mode (evil-collection-arc-mode-setup))
+  (with-eval-after-load 'custom (evil-collection-custom-setup))
+  (with-eval-after-load 'dired (evil-collection-dired-setup))
+  (with-eval-after-load 'magit (evil-collection-magit-setup)))
 
 (use-package emacs
+  :custom
+  (indent-tabs-mode nil)
+  (fill-column 80)
+  (enable-recursive-minibuffers t)
+  (minibuffer-prompt-properties
+   '(read-only t cursor-intangible t face minibuffer-prompt))
   :init
-  (setq minibuffer-prompt-properties
-        '(read-only t cursor-intangible t face minibuffer-prompt))
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode))
 
-  (setq read-extended-command-predicate #'command-completion-default-include-p)
-
-  (setq enable-recursive-minibuffers t))
-
-(let ((agda-mode-path (executable-find "agda-mode")))
-  (when agda-mode-path
-    (load-file
+(when-let ((agda-mode-path (executable-find "agda-mode")))
+  (load-file
+   (with-temp-buffer
      (let ((coding-system-for-read 'utf-8))
-       (shell-command-to-string (format "%s locate" agda-mode-path))))))
+       (call-process agda-mode-path nil t nil "locate"))
+     (buffer-string))))
 
 (add-to-list 'auto-mode-alist '("\\.\\(agda\\|lagda\\.md\\)\\'" . agda2-mode))
 
-(with-eval-after-load 'arc-mode (evil-collection-arc-mode-setup))
-(with-eval-after-load 'custom (evil-collection-custom-setup))
-(with-eval-after-load 'dired (evil-collection-dired-setup))
-(with-eval-after-load 'magit (evil-collection-magit-setup))
-
-(general-define-key
- :states '(normal visual)
- "C-;" #'evilnc-comment-operator)
+(use-package ispell
+  :defer t
+  :custom
+  (ispell-program-name "aspell")
+  (ispell-local-dictionary "francais")
+  (ispell-local-dictionary-alist
+   '(("francais" "[[:alpha:]]" "[^[:alpha:]]" "['’]" t nil nil utf-8))))
 
 (define-key global-map (kbd "C-f") 'universal-argument)
 (define-key universal-argument-map (kbd "C-f") 'universal-argument-more)

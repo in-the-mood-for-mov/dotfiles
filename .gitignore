@@ -1,4 +1,5 @@
 /emacs/*
 !/emacs/typer/
 !/emacs/custom.el
+!/emacs/early-init.el
 !/emacs/init.el

@@ -43,3 +43,5 @@ if (Get-Command "opam" -ErrorAction SilentlyContinue) {
     }
   }
 }
+
+$env:VCPKG_DEFAULT_TRIPLET = "x64-windows"
