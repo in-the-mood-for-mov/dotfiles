@@ -60,9 +60,6 @@
     (pcase-let ((`(,name . ,value) pair))
       (setenv name value))))
 
-; Welcome to the stone age
-(define-key input-decode-map "\C-i" [C-i])
-
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("elpa" . "https://elpa.gnu.org/packages/")))
