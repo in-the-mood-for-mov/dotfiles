@@ -8,6 +8,8 @@ TAGS
 .idea
 *.iml
 
+.vs
+
 *.pdf
 _region_.tex
 *.aux

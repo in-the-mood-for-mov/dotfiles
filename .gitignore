@@ -1,10 +1,4 @@
-/emacs/.*
-/emacs/*.s
-/emacs/auto-save-list/
-/emacs/elpa/
-/emacs/parinfer-rust/
-/emacs/projectile*
-/emacs/recentf
-/emacs/server/
-/emacs/transient/
-/emacs/var/
+/emacs/*
+!/emacs/typer/
+!/emacs/custom.el
+!/emacs/init.el

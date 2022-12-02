@@ -19,7 +19,7 @@
    (setq mac-option-modifier 'none)
    (setq mac-command-modifier 'meta)))
 
-(defvar my/face-height
+(defconst my/face-height
   (pcase system-type
     ('darwin 210)
     ('windows-nt 170)))
@@ -334,6 +334,14 @@
              evil-collection-magit-setup)
   :config
   (evil-collection-package-menu-setup))
+
+(let ((agda-mode-path (executable-find "agda-mode")))
+  (when agda-mode-path
+    (load-file
+     (let ((coding-system-for-read 'utf-8))
+       (shell-command-to-string (format "%s locate" agda-mode-path))))))
+
+(add-to-list 'auto-mode-alist '("\\.\\(agda\\|lagda\\.md\\)\\'" . agda2-mode))
 
 (with-eval-after-load 'arc-mode (evil-collection-arc-mode-setup))
 (with-eval-after-load 'custom (evil-collection-custom-setup))

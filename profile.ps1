@@ -1,7 +1,6 @@
 Set-Alias -Name ls -Value Get-ChildItem
 $env:LANG = "en_CA.utf-8"
 Set-PSReadlineOption -EditMode Emacs -BellStyle Visual
-[Console]::TreatControlCAsInput = $True
 
 & {
   function AddToPath {
@@ -11,9 +10,6 @@ Set-PSReadlineOption -EditMode Emacs -BellStyle Visual
 
   $applicationData = [Environment]::GetFolderPath("LocalApplicationData")
 
-  $env:RUSTUP_HOME = Join-Path $applicationData "rustup"
-  $env:CARGO_HOME = Join-Path $applicationData "cargo"
-  AddToPath(Join-Path $env:CARGO_HOME "bin")
   $env:OPAMROOT = Join-Path $applicationData "opam"
   AddToPath(Join-Path $HOME ".dotnet" "tools")
 }
