@@ -103,15 +103,20 @@
   (delight '((eldoc-mode nil "eldoc")
              (auto-revert-mode nil "autorevert"))))
 
-(use-package selectrum
+(use-package orderless
   :ensure t
-  :init (selectrum-mode 1))
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles partial-completion)))))
 
-(use-package selectrum-prescient
+(use-package vertico
   :ensure t
-  :init
-  (selectrum-prescient-mode 1)
-  (prescient-persist-mode 1))
+  :init (vertico-mode))
+
+(use-package savehist
+  :ensure t
+  :init (savehist-mode))
 
 (use-package projectile
   :ensure t
@@ -143,10 +148,7 @@
   (consult-dir-sources (list #'consult-dir--source-bookmark
                              #'consult-dir--source-project
                              #'consult-dir--source-recentf))
-  :bind (("C-x C-d" . consult-dir)
-         :map selectrum-minibuffer-map
-         ("C-x C-d" . consult-dir)
-         ("C-x C-j" . consult-dir-jump-file)))
+  :bind (("C-x C-d" . consult-dir)))
 
 (use-package marginalia
   :ensure t
@@ -175,12 +177,11 @@
   :delight
   :config (global-vi-tilde-fringe-mode 1))
 
-(use-package undo-fu
-  :ensure t)
-
 (use-package evil
   :ensure t
   :custom
+  (evil-undo-system 'undo-redo)
+  (evil-shift-width 2)
   (evil-mode-line-format nil)
   (evil-want-C-i-jump nil)
   (evil-want-C-u-delete t)
@@ -199,9 +200,6 @@
   (defalias #'forward-evil-word #'forward-evil-symbol)
   (define-key evil-motion-state-map (kbd "<C-i>") 'evil-jump-forward)
   (evil-mode 1))
-
-(define-key evil-normal-state-map "u" 'undo-fu-only-undo)
-(define-key evil-normal-state-map "\C-r" 'undo-fu-only-redo)
 
 (use-package evil-escape
   :ensure t
@@ -311,7 +309,9 @@
   :init (global-flycheck-mode)
   :custom
   (flycheck-check-syntax-automatically '(save new-line mode-enabled))
-  (flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
+  (flycheck-disabled-checkers '(emacs-lisp-checkdoc
+                                tex-chktex
+                                tex-lacheck)))
 
 (use-package geiser-gambit
   :ensure t
@@ -335,6 +335,16 @@
   :config
   (evil-collection-package-menu-setup))
 
+(use-package emacs
+  :init
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+  (setq read-extended-command-predicate #'command-completion-default-include-p)
+
+  (setq enable-recursive-minibuffers t))
+
 (let ((agda-mode-path (executable-find "agda-mode")))
   (when agda-mode-path
     (load-file
@@ -351,6 +361,11 @@
 (general-define-key
  :states '(normal visual)
  "C-;" #'evilnc-comment-operator)
+
+(define-key global-map (kbd "C-f") 'universal-argument)
+(define-key universal-argument-map (kbd "C-f") 'universal-argument-more)
+(with-eval-after-load 'evil-maps
+  (define-key evil-motion-state-map (kbd "C-f") nil))
 
 (setq-default mode-line-format
               '("%e"

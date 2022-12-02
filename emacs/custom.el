@@ -10,7 +10,7 @@
      (output-pdf "SumatraPDF")
      (output-html "start")))
  '(package-selected-packages
-   '(nhexl-mode dhall-mode json-mode ahk-mode undo-fu parinfer-rust-mode haskell-mode geiser-gambit modus-themes delight diminish consult-dir powershell flycheck lsp-haskell lsp-ui lsp-mode selectrum org-plus-contrib evil-cleverparens smartparens evil-collection vi-tilde-fringe vi-tilde-fringe-mode general evil-nerd-commenter evil-surround auctex merlin tuareg magit projectile evil-escape evil doom-themes embark-consult embark marginalia which-key rainbow-delimiters use-package selectrum-prescient consult)))
+   '(orderless vertico nhexl-mode dhall-mode json-mode ahk-mode undo-fu parinfer-rust-mode haskell-mode geiser-gambit modus-themes delight diminish consult-dir powershell flycheck lsp-haskell lsp-ui lsp-mode selectrum org-plus-contrib evil-cleverparens smartparens evil-collection vi-tilde-fringe vi-tilde-fringe-mode general evil-nerd-commenter evil-surround auctex merlin tuareg magit projectile evil-escape evil doom-themes embark-consult embark marginalia which-key rainbow-delimiters use-package selectrum-prescient consult)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
