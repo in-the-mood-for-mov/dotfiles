@@ -44,6 +44,22 @@
     (pcase-let ((`(,name . ,value) pair))
       (setenv name value))))
 
+(setq-default indent-tabs-mode nil)
+(setq-default fill-column 80)
+(setq enable-recursive-minibuffers t)
+(setq minibuffer-prompt-properties
+  '(read-only t cursor-intangible t face minibuffer-prompt))
+(add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+(setq read-extended-command-predicate #'command-completion-default-include-p)
+(column-number-mode)
+(global-display-line-numbers-mode)
+
+(add-hook 'before-save-hook #'whitespace-cleanup)
+
+(setq recentf-max-saved-items 40)
+(recentf-mode 1)
+
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("elpa" . "https://elpa.gnu.org/packages/")))
@@ -64,21 +80,6 @@
   (auto-compile-on-load-mode)
   (auto-compile-on-save-mode))
 
-(use-package simple
-  :custom
-  (read-extended-command-predicate #'command-completion-default-include-p)
-  :config (column-number-mode))
-
-(use-package display-line-numbers
-  :config (global-display-line-numbers-mode))
-
-(use-package recentf
-  :custom (recentf-max-saved-items 40)
-  :config (recentf-mode 1))
-
-(use-package whitespace
-  :hook (before-save . whitespace-cleanup))
-
 (use-package solarized-theme
   :ensure t
   :custom
@@ -97,30 +98,6 @@
   (delight '((eldoc-mode nil "eldoc")
              (auto-revert-mode nil "autorevert"))))
 
-(use-package corfu
-  :ensure t
-  :custom (corfu-auto t)
-  :general
-  (:keymaps 'corfu-map
-            "\r" nil)
-  :config (global-corfu-mode))
-
-(use-package corfu-popupinfo
-  :ensure corfu
-  :custom (corfu-popupinfo-delay t)
-  :config (corfu-popupinfo-mode))
-
-(use-package orderless
-  :ensure t
-  :custom
-  (completion-styles '(orderless basic))
-  (completion-category-defaults nil)
-  (completion-category-overrides '((file (styles partial-completion)))))
-
-(use-package vertico
-  :ensure t
-  :init (vertico-mode))
-
 (use-package savehist
   :ensure t
   :init (savehist-mode))
@@ -128,20 +105,18 @@
 (use-package projectile
   :ensure t
   :delight '(:eval (concat " ‹" (projectile-project-name) "›"))
-  :commands (projectile-project-root)
   :custom (projectile-completion-system 'default)
   :config (projectile-mode 1)
   :bind-keymap ("C-x p" . projectile-command-map))
 
 (use-package consult
   :ensure t
-  :commands (consult--directory-prompt)
+  :custom
+  (consult-project-root-function #'projectile-project-root)
   :config
   (consult-customize
    consult-buffer consult-ripgrep consult-find
    :preview-key (kbd "M-."))
-  :custom
-  (consult-project-root-function #'projectile-project-root)
   :bind (("C-x b" . consult-buffer)
          ("M-l" . consult-line)
          ("C-x s" . consult-ripgrep)
@@ -156,6 +131,35 @@
                              #'consult-dir--source-project
                              #'consult-dir--source-recentf))
   :bind (("C-x C-d" . consult-dir)))
+
+(use-package corfu
+  :ensure t
+  :custom (corfu-auto t)
+  :general
+  (:keymaps 'corfu-map
+            "\r" nil)
+  :config
+  (defun my/corfu-enable-in-minibuffer ()
+    (when (where-is-internal #'completion-at-point (list (current-local-map)))
+      (corfu-mode 1)))
+  (add-hook 'minibuffer-setup-hook #'my/corfu-enable-in-minibuffer)
+  (global-corfu-mode))
+
+(use-package corfu-popupinfo
+  :ensure corfu
+  :custom (corfu-popupinfo-delay t)
+  :config (corfu-popupinfo-mode))
+
+(use-package vertico
+  :ensure t
+  :config (vertico-mode))
+
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles partial-completion)))))
 
 (use-package marginalia
   :ensure t
@@ -225,6 +229,7 @@
 
 (use-package parinfer-rust-mode
   :ensure t
+  :custom (parinfer-rust-auto-download t)
   :hook (emacs-lisp-mode scheme-mode))
 
 (use-package magit
@@ -280,6 +285,9 @@
   :init (add-hook 'TeX-mode-hook #'auto-fill-mode)
   :config (define-key TeX-mode-map "$" nil))
 
+(use-package reftex
+  :hook LaTeX-mode)
+
 (use-package powershell
   :ensure t
   :custom
@@ -310,12 +318,12 @@
 (use-package flycheck
   :ensure t
   :delight
-  :init (global-flycheck-mode)
   :custom
   (flycheck-check-syntax-automatically '(save new-line mode-enabled))
   (flycheck-disabled-checkers '(emacs-lisp-checkdoc
                                 tex-chktex
-                                tex-lacheck)))
+                                tex-lacheck))
+  :config (global-flycheck-mode))
 
 (use-package scheme
   :mode "\\.\\(scm\\|sld\\)\\'"
@@ -348,15 +356,10 @@
   (with-eval-after-load 'dired (evil-collection-dired-setup))
   (with-eval-after-load 'magit (evil-collection-magit-setup)))
 
-(use-package emacs
-  :custom
-  (indent-tabs-mode nil)
-  (fill-column 80)
-  (enable-recursive-minibuffers t)
-  (minibuffer-prompt-properties
-   '(read-only t cursor-intangible t face minibuffer-prompt))
-  :init
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode))
+(use-package evil-tex
+  :ensure t
+  :custom (evil-tex-select-newlines-with-envs nil)
+  :hook LaTeX-mode)
 
 (when-let ((agda-mode-path (executable-find "agda-mode")))
   (load-file
@@ -366,6 +369,14 @@
      (buffer-string))))
 
 (add-to-list 'auto-mode-alist '("\\.\\(agda\\|lagda\\.md\\)\\'" . agda2-mode))
+(defun my/set-input-method-agda ()
+  (set-input-method "Agda"))
+(defun my/set-input-method-nil ()
+  (set-input-method nil))
+(defun my/agda-mode-hook ()
+  (add-hook 'evil-insert-state-entry-hook #'my/set-input-method-agda 0 t)
+  (add-hook 'evil-insert-state-exit-hook #'my/set-input-method-nil 0 t))
+(add-hook 'agda2-mode-hook #'my/agda-mode-hook)
 
 (use-package ispell
   :defer t
@@ -373,7 +384,12 @@
   (ispell-program-name "aspell")
   (ispell-local-dictionary "francais")
   (ispell-local-dictionary-alist
-   '(("francais" "[[:alpha:]]" "[^[:alpha:]]" "['’]" t nil nil utf-8))))
+   '(("francais" "[[:alpha:]]" "[^[:alpha:]]" "['’]" t nil nil utf-8)))
+  :init
+  (evil-define-operator evil-ispell-operator (beg end)
+    "Spell check region."
+    (ispell-region beg end))
+  :general (:states '(normal visual) "z /" #'evil-ispell-operator))
 
 (define-key global-map (kbd "C-f") 'universal-argument)
 (define-key universal-argument-map (kbd "C-f") 'universal-argument-more)
