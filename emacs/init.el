@@ -57,8 +57,7 @@
 
 (add-hook 'before-save-hook #'whitespace-cleanup)
 
-(setq recentf-max-saved-items 40)
-(recentf-mode 1)
+(setq sentence-end-double-space nil)
 
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
@@ -72,6 +71,15 @@
 (eval-when-compile
   (require 'use-package))
 
+(use-package emacs
+  :custom
+  (modus-themes-bold-constructs t)
+  (modus-themes-italic-constructs t)
+  (modus-themes-region '(accented bg-only))
+  (modus-themes-paren-match '(intense))
+  (modus-themes-fringes 'subtle)
+  :config (load-theme 'modus-vivendi))
+
 (use-package auto-compile
   :ensure t
   :custom
@@ -80,14 +88,9 @@
   (auto-compile-on-load-mode)
   (auto-compile-on-save-mode))
 
-(use-package solarized-theme
-  :ensure t
-  :custom
-  (solarized-distinct-fringe-background t)
-  (solarized-use-variable-pitch nil)
-  (solarized-high-contrast-mode-line t)
-  (solarized-use-more-italic t)
-  :config (load-theme 'solarized-dark-high-contrast t))
+(use-package recentf
+  :custom (recentf-max-saved-items 40)
+  :config (recentf-mode))
 
 (use-package general
   :ensure t)
