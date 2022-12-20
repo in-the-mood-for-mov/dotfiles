@@ -1,25 +1,5 @@
 ;; -*- lexical-binding: t -*-
 
-(setq inhibit-startup-message t
-      initial-scratch-message ""
-      visible-bell nil
-      ring-bell-function 'ignore
-      make-backup-files nil)
-
-(defvar mac-option-modifier)
-(defvar mac-command-modifier)
-(pcase system-type
-  ('darwin
-   (setq mac-option-modifier 'none)
-   (setq mac-command-modifier 'meta)))
-
-(defconst my/face-height
-  (pcase system-type
-    ('darwin 210)
-    ('windows-nt 170)))
-(set-face-attribute 'default nil :font "Iosevka Term" :height my/face-height)
-(set-face-attribute 'fixed-pitch nil :family 'unspecified :inherit 'default)
-
 (define-key input-decode-map "\C-i" [C-i])
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
@@ -44,20 +24,9 @@
     (pcase-let ((`(,name . ,value) pair))
       (setenv name value))))
 
-(setq-default indent-tabs-mode nil)
-(setq-default fill-column 80)
-(setq enable-recursive-minibuffers t)
-(setq minibuffer-prompt-properties
-  '(read-only t cursor-intangible t face minibuffer-prompt))
-(add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-
 (setq read-extended-command-predicate #'command-completion-default-include-p)
 (column-number-mode)
 (global-display-line-numbers-mode)
-
-(add-hook 'before-save-hook #'whitespace-cleanup)
-
-(setq sentence-end-double-space nil)
 
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
@@ -72,15 +41,6 @@
   (require 'use-package))
 (setq use-package-expand-minimally t)
 
-(use-package emacs
-  :custom
-  (modus-themes-bold-constructs t)
-  (modus-themes-italic-constructs t)
-  (modus-themes-region '(accented bg-only))
-  (modus-themes-paren-match '(intense))
-  (modus-themes-fringes 'subtle)
-  :config (load-theme 'modus-vivendi))
-
 (use-package auto-compile
   :ensure t
   :custom
@@ -89,9 +49,54 @@
   (auto-compile-on-load-mode)
   (auto-compile-on-save-mode))
 
+(use-package emacs
+  :custom
+  (inhibit-startup-message t)
+  (initial-scratch-message "")
+
+  (indent-tabs-mode nil)
+  (fill-column 80)
+  (sentence-end-double-space nil)
+  (enable-recursive-minibuffers t)
+  (minibuffer-prompt-properties
+   '(read-only t cursor-intangible t face minibuffer-prompt))
+  (visible-bell nil)
+  (ring-bell-function 'ignore)
+  (make-backup-files nil)
+
+  (modus-themes-bold-constructs t)
+  (modus-themes-italic-constructs t)
+  (modus-themes-region '(accented bg-only))
+  (modus-themes-paren-match '(intense))
+  (modus-themes-fringes 'subtle)
+
+  :config
+  (load-theme 'modus-vivendi)
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+  (add-hook 'before-save-hook #'whitespace-cleanup))
+
+(use-package ns-win
+  :requires ns
+  :custom
+  (mac-option-modifier 'none)
+  (mac-command-modifier 'meta))
+
+(use-package faces
+  :if window-system
+  :config
+  (set-face-attribute 'default nil :font "Iosevka Term"
+                      :height
+                      (pcase system-type
+                        ('darwin 210)
+                        ('windows-nt 170)))
+  (set-face-attribute 'fixed-pitch nil :family 'unspecified :inherit 'default))
+
 (use-package recentf
   :custom (recentf-max-saved-items 40)
   :config (recentf-mode))
+
+(use-package savehist
+  :config (savehist-mode))
 
 (use-package general
   :ensure t)
@@ -101,10 +106,6 @@
   :config
   (delight '((eldoc-mode nil "eldoc")
              (auto-revert-mode nil "autorevert"))))
-
-(use-package savehist
-  :ensure t
-  :config (savehist-mode))
 
 (use-package projectile
   :ensure t
