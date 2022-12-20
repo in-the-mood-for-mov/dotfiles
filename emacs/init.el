@@ -244,7 +244,7 @@
 (use-package lsp-mode
   :ensure t
   :delight
-  :commands lsp
+  :commands lsp-mode
   :custom (lsp-keymap-prefix "C-;")
   :config
   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
