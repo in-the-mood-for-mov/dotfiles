@@ -328,8 +328,8 @@
       "SumatraPDF")))
   (TeX-view-program-selection
    (pcase system-type
-     (darwin '((output-pdf "Skim")))
-     (windows-nt) '((output-pdf "SumatraPDF"))))
+     ('darwin '((output-pdf "Skim")))
+     ('windows-nt '((output-pdf "SumatraPDF")))))
   :config
   (add-hook 'TeX-mode-hook #'auto-fill-mode)
   (add-hook 'TeX-mode-hook #'TeX-source-correlate-mode)
