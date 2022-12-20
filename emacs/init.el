@@ -70,6 +70,7 @@
 
 (eval-when-compile
   (require 'use-package))
+(setq use-package-expand-minimally t)
 
 (use-package emacs
   :custom
@@ -103,7 +104,7 @@
 
 (use-package savehist
   :ensure t
-  :init (savehist-mode))
+  :config (savehist-mode))
 
 (use-package projectile
   :ensure t
@@ -178,7 +179,7 @@
 
 (use-package rainbow-delimiters
   :ensure t
-  :hook ((emacs-lisp-mode TeX-mode) . rainbow-delimiters-mode))
+  :commands (rainbow-delimiters-mode))
 
 (use-package which-key
   :ensure t
@@ -232,13 +233,40 @@
 
 (use-package parinfer-rust-mode
   :ensure t
-  :custom (parinfer-rust-auto-download t)
-  :hook (emacs-lisp-mode scheme-mode))
+  :commands (parinfer-rust-mode)
+  :custom (parinfer-rust-auto-download t))
 
 (use-package magit
   :ensure t
   :config (magit-auto-revert-mode)
   :bind (("C-x g" . magit-status)))
+
+(use-package lsp-mode
+  :ensure t
+  :delight
+  :commands lsp
+  :custom (lsp-keymap-prefix "C-;")
+  :config
+  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
+
+(use-package lsp-ui
+  :ensure t
+  :hook lsp-mode)
+
+(use-package flycheck
+  :ensure t
+  :delight
+  :commands (flycheck-mode)
+  :custom
+  (flycheck-check-syntax-automatically '(save new-line mode-enabled))
+  (flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
+
+(use-package elisp-mode
+  :defer t
+  :config
+  (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'emacs-lisp-mode-hook #'parinfer-rust-mode)
+  (add-hook 'emacs-lisp-mode-hool #'flycheck-mode))
 
 (use-package message
   :commands message-mode
@@ -261,81 +289,84 @@
 
 (use-package dhall-mode
   :ensure t
+  :mode "\\.dhall\\'"
+  :custom (dhall-use-header-line nil)
   :config
-  (setq dhall-use-header-line nil))
+  (add-hook 'dhall-mode-hook #'lsp-mode))
 
 (use-package tuareg
   :ensure t
-  :init
-  (setq tuareg-indent-align-with-first-arg t)
+  :mode (("\\.mli?\\'" . tuareg-mode))
+  :custom
+  (tuareg-indent-align-with-first-arg t)
+  :config
+  (add-hook 'tuareg-mode-hook #'merlin-mode)
   (add-hook 'tuareg-mode-hook #'rainbow-delimiters-mode)
-  :mode (("\\.mli?\\'" . tuareg-mode)))
+  (add-hook 'tuareg-mode-hook #'flycheck-mode))
 
 (use-package merlin
   :ensure t
-  :hook (tuareg-mode . merlin-mode)
-  :bind (:map merlin-mode-map ("C-c C-e" . merlin-error-next)))
+  :hook tuareg-mode
+  :general (:keymaps 'merlin-mode-map "C-c C-e" #'merlin-error-next))
 
-(use-package latex
+(use-package tex-mode
+  :mode (("\\.tex\\'" . tex-mode))
+  :custom (tex-fontify-script nil))
+
+(use-package tex
   :ensure auctex
+  :after tex-mode
   :custom
   (TeX-parse-self t)
   (TeX-auto-save t)
-  (tex-fontify-script nil)
+  (TeX-view-program-selection
+   (pcase system-type
+     (darwin '((output-pdf "Skim")))
+     (windows-nt) '((output-pdf "SumatraPDF"))))
+  :config
+  (add-hook 'TeX-mode-hook #'auto-fill-mode)
+  (add-hook 'TeX-mode-hook #'TeX-source-correlate-mode)
+  (add-hook 'TeX-mode-hook #'rainbow-delimiters-mode)
+  :general (:keymaps 'TeX-mode-map "$" nil))
+
+(use-package font-latex
+  :ensure auctex
+  :after tex-mode
+  :custom
   (font-latex-fontify-script nil)
-  (font-latex-fontify-sectioning 'color)
-  :mode (("\\.tex\\'" . tex-mode))
-  :init (add-hook 'TeX-mode-hook #'auto-fill-mode)
-  :config (define-key TeX-mode-map "$" nil))
+  (font-latex-fontify-sectioning 'color))
+
+(use-package evil-tex
+  :ensure t
+  :hook TeX-mode
+  :custom (evil-tex-select-newlines-with-envs nil))
 
 (use-package reftex
-  :hook LaTeX-mode)
+  :hook TeX-mode)
 
 (use-package powershell
   :ensure t
-  :custom
-  (powershell-indent 2)
-  :mode (("\\.ps1\\'" . powershell-mode)))
+  :mode (("\\.ps1\\'" . powershell-mode))
+  :custom (powershell-indent 2))
 
 (use-package haskell-mode
-  :ensure t)
-
-(use-package lsp-mode
   :ensure t
-  :delight
-  :init (setq lsp-keymap-prefix "C-;")
-  :commands lsp
-  :hook
-  ((dhall-mode . lsp)
-   (haskell-mode . lsp)
-   (lsp-mode . lsp-enable-which-key-integration)))
-
-(use-package lsp-ui
-  :ensure t
-  :commands lsp-ui-mode
-  :hook ((lsp-mode-hook . lsp-ui-mode)))
+  :mode "\\.hs\\'")
 
 (use-package lsp-haskell
-  :ensure t)
-
-(use-package flycheck
   :ensure t
-  :delight
-  :custom
-  (flycheck-check-syntax-automatically '(save new-line mode-enabled))
-  (flycheck-disabled-checkers '(emacs-lisp-checkdoc
-                                tex-chktex
-                                tex-lacheck))
-  :config (global-flycheck-mode))
+  :hook haskell-mode)
 
 (use-package scheme
   :mode "\\.\\(scm\\|sld\\)\\'"
   :config
-  (put 'with-input-from-u8vector 'scheme-indent-function 1))
+  (put 'with-input-from-u8vector 'scheme-indent-function 1)
+  (add-hook 'scheme-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'scheme-mode-hook #'parinfer-rust-mode))
 
 (use-package geiser-gambit
   :ensure t
-  :hook (((sheme-mode) . geiser-mode--maybe-activate)))
+  :hook (sheme-mode . geiser-mode--maybe-activate))
 
 (use-package macrostep
   :ensure t
@@ -358,11 +389,6 @@
   (with-eval-after-load 'custom (evil-collection-custom-setup))
   (with-eval-after-load 'dired (evil-collection-dired-setup))
   (with-eval-after-load 'magit (evil-collection-magit-setup)))
-
-(use-package evil-tex
-  :ensure t
-  :custom (evil-tex-select-newlines-with-envs nil)
-  :hook LaTeX-mode)
 
 (when-let ((agda-mode-path (executable-find "agda-mode")))
   (load-file
