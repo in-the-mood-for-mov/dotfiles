@@ -310,7 +310,7 @@
   :general (:keymaps 'merlin-mode-map "C-c C-e" #'merlin-error-next))
 
 (use-package tex-mode
-  :mode (("\\.tex\\'" . tex-mode))
+  :mode "\\.tex\\'"
   :custom (tex-fontify-script nil))
 
 (use-package tex
