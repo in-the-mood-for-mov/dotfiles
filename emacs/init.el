@@ -320,6 +320,12 @@
   :custom
   (TeX-parse-self t)
   (TeX-auto-save t)
+  (TeX-view-program-list
+   '(("SumatraPDF"
+      ("SumatraPDF"
+       (mode-io-correlate " -forward-search \"%b\" %n")
+       " %o")
+      "SumatraPDF")))
   (TeX-view-program-selection
    (pcase system-type
      (darwin '((output-pdf "Skim")))
