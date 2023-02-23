@@ -88,7 +88,8 @@
                       :height
                       (pcase system-type
                         ('darwin 210)
-                        ('windows-nt 170)))
+                        ('windows-nt 170)
+                        ('gnu/linux 200)))
   (set-face-attribute 'fixed-pitch nil :family 'unspecified :inherit 'default))
 
 (use-package recentf
@@ -119,12 +120,17 @@
   :custom
   (consult-project-root-function #'projectile-project-root)
   :config
+  (defalias 'consult-ripgrep-at-point 'consult-ripgrep)
+  (consult-customize
+   consult-ripgrep-at-point
+   :initial (thing-at-point 'symbol))
   (consult-customize
    consult-buffer consult-ripgrep consult-find
-   :preview-key (kbd "M-."))
+   :preview-key "M-.")
   :bind (("C-x b" . consult-buffer)
          ("M-l" . consult-line)
          ("C-x s" . consult-ripgrep)
+         ("C-x *" . consult-ripgrep-at-point)
          ("C-x f" . consult-find)))
 
 (use-package consult-dir
