@@ -110,6 +110,7 @@
 
 (use-package projectile
   :ensure t
+  :defer nil
   :delight '(:eval (concat " ‹" (projectile-project-name) "›"))
   :custom (projectile-completion-system 'default)
   :config (projectile-mode 1)
