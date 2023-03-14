@@ -394,6 +394,10 @@
   :ensure t
   :mode (("\\.ahk\\'" . ahk-mode)))
 
+(use-package yaml-mode
+  :ensure t
+  :mode (("\\.ya?ml\\'" . yaml-mode)))
+
 (use-package evil-collection
   :ensure t
   :after evil
