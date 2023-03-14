@@ -29,6 +29,7 @@ $links = [ordered]@{
   "emacs" = Join-Path ([Environment]::GetFolderPath("ApplicationData")) $emacsFolderName;
   "gitconfig" = (Join-Path $HOME ".gitconfig");
   "gitignore" = (Join-Path $HOME ".gitignore");
+  "clang-tidy" = (Join-Path $HOME ".clang-tidy");
 }
 
 foreach ($pair in $links.GetEnumerator()) {
