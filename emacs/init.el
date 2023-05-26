@@ -398,6 +398,11 @@
   :ensure t
   :mode (("\\.ya?ml\\'" . yaml-mode)))
 
+(use-package erlang
+  :ensure t
+  :mode (("\\.erl\\'" . erlang-mode)
+         ("rebar\\.config\\'" . erlang-mode)))
+
 (use-package evil-collection
   :ensure t
   :after evil

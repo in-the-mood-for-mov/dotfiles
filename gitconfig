@@ -21,3 +21,6 @@ defaultBranch = trunk
 
 [diff]
 colorMoved = zebra
+
+[credential]
+helper = manager
