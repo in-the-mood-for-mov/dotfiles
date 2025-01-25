@@ -1,30 +1,35 @@
-<^>!a::à
-<^>!A::À
-<^>!z::â
-<^>!Z::Â
+CapsLock::Control
 
-<^>!c::ç
-<^>!C::Ç
+>!a::SendInput "à"
+>!+a::SendInput "À"
+>!z::SendInput "â"
+>!+z::SendInput "Â"
 
-<^>!e::é
-<^>!E::É
-<^>!w::è
-<^>!W::È
-<^>!q::ê
-<^>!Q::Ê
-<^>!r::ë
-<^>!R::Ë
+>!c::SendInput "ç"
+>!+c::SendInput "Ç"
 
-<^>!o::ô
-<^>!O::Ô
+>!e::SendInput "é"
+>!+e::SendInput "É"
+>!w::SendInput "è"
+>!+w::SendInput "È"
+>!q::SendInput "ê"
+>!+q::SendInput "Ê"
+>!r::SendInput "ë"
+>!+r::SendInput "Ë"
 
-<^>!u::ù
-<^>!U::Ù
-<^>!y::û
-<^>!Y::Û
-<^>!i::ü
-<^>!I::Ü
+>!o::SendInput "ô"
+>!+o::SendInput "Ô"
 
-<^>!l::λ
+>!u::SendInput "ù"
+>!+u::SendInput "Ù"
+>!y::SendInput "û"
+>!+y::SendInput "Û"
+>!i::SendInput "ü"
+>!+i::SendInput "Ü"
 
-<^>!.::…
+>!l::SendInput "λ"
+
+>!.::SendInput "…"
+
+XButton1::return
+XButton2::return

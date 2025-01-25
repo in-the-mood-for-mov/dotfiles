@@ -5,10 +5,11 @@
 TAGS
 .dir-locals.el
 
-.idea
+.idea/
 *.iml
+*.DotSettings.user
 
-.vs
+.vs/
 
 *.pdf
 _region_.tex

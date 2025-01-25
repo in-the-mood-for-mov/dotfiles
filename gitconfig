@@ -1,6 +1,6 @@
 [core]
 editor = emacs
-excludesfile = ~/.gitignore
+excludesFile = C:/Users/simon/.gitignore
 pager = less
 
 [color]

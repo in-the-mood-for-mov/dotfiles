@@ -11,7 +11,7 @@
                    (goto-char (point-min))
                    (read (current-buffer)))
                (kill-buffer buffer))))
-  (setq exec-path (cl-union exec-path path))
+  (setq exec-path (seq-uniq (seq-concatenate 'list exec-path path)))
   (setenv "PATH" (mapconcat #'identity exec-path path-separator)))
 
 (let* ((buffer (find-file-noselect (concat user-emacs-directory "env.s")))
@@ -30,7 +30,8 @@
 
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("elpa" . "https://elpa.gnu.org/packages/")))
+                         ("elpa" . "https://elpa.gnu.org/packages/")
+                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 (package-initialize)
 (unless package-archive-contents
   (package-refresh-contents))
@@ -84,7 +85,7 @@
 (use-package faces
   :if window-system
   :config
-  (set-face-attribute 'default nil :font "Iosevka Term"
+  (set-face-attribute 'default nil :font "Cascadia Code"
                       :height
                       (pcase system-type
                         ('darwin 210)
@@ -211,14 +212,6 @@
   (evil-want-C-u-scroll t)
   (evil-want-keybinding nil)
   (evil-symbol-word-search t)
-  (evil-digraphs-table-user '(((?_ ?0) . #x2080) ; ₀
-                              ((?_ ?1) . #x2081) ; ₁
-                              ((?_ ?2) . #x2082) ; ₂
-                              ((?l ?l) . #x2113) ; ℓ
-                              ((?1 ?>) . #x2192) ; →
-                              ((?z ?z) . #x21af) ; ↯
-                              ((?2 ?>) . #x21d2) ; ⇒
-                              ((?3 ?>) . #x21db))) ; ⇛
   :config
   (defalias #'forward-evil-word #'forward-evil-symbol)
   (define-key evil-motion-state-map (kbd "<C-i>") 'evil-jump-forward)
@@ -276,14 +269,22 @@
   (add-hook 'emacs-lisp-mode-hook #'parinfer-rust-mode)
   (add-hook 'emacs-lisp-mode-hool #'flycheck-mode))
 
-(use-package message
-  :commands message-mode
-  :config
-  (add-hook 'message-mode-hook #'(lambda () (abbrev-mode -1))))
-
 (use-package org
   :ensure t
   :mode (("\\.org\\'" . org-mode)))
+
+(use-package evil-org
+  :ensure t
+  :after org
+  :hook (org-mode . (lambda () evil-org-mode))
+  :config
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
+
+(use-package org-contrib
+  :ensure t
+  :after (org)
+  :config (require 'ob-csharp))
 
 (use-package json-mode
   :ensure t
@@ -295,113 +296,19 @@
        (make-local-variable 'js-indent-level)
        (setq js-indent-level 2))))
 
-(use-package dhall-mode
-  :ensure t
-  :mode "\\.dhall\\'"
-  :custom (dhall-use-header-line nil)
-  :config
-  (add-hook 'dhall-mode-hook #'lsp-mode))
-
-(use-package tuareg
-  :ensure t
-  :mode (("\\.mli?\\'" . tuareg-mode))
-  :custom
-  (tuareg-indent-align-with-first-arg t)
-  :config
-  (add-hook 'tuareg-mode-hook #'merlin-mode)
-  (add-hook 'tuareg-mode-hook #'rainbow-delimiters-mode)
-  (add-hook 'tuareg-mode-hook #'flycheck-mode))
-
-(use-package merlin
-  :ensure t
-  :hook tuareg-mode
-  :general (:keymaps 'merlin-mode-map "C-c C-e" #'merlin-error-next))
-
-(use-package tex-mode
-  :mode "\\.tex\\'"
-  :custom (tex-fontify-script nil))
-
-(use-package tex
-  :ensure auctex
-  :after tex-mode
-  :custom
-  (TeX-parse-self t)
-  (TeX-auto-save t)
-  (TeX-view-program-list
-   '(("SumatraPDF"
-      ("SumatraPDF"
-       (mode-io-correlate " -forward-search \"%b\" %n")
-       " %o")
-      "SumatraPDF")))
-  (TeX-view-program-selection
-   (pcase system-type
-     ('darwin '((output-pdf "Skim")))
-     ('windows-nt '((output-pdf "SumatraPDF")))))
-  :config
-  (add-hook 'TeX-mode-hook #'auto-fill-mode)
-  (add-hook 'TeX-mode-hook #'TeX-source-correlate-mode)
-  (add-hook 'TeX-mode-hook #'rainbow-delimiters-mode)
-  :general (:keymaps 'TeX-mode-map "$" nil))
-
-(use-package font-latex
-  :ensure auctex
-  :after tex-mode
-  :custom
-  (font-latex-fontify-script nil)
-  (font-latex-fontify-sectioning 'color))
-
-(use-package evil-tex
-  :ensure t
-  :hook TeX-mode
-  :custom (evil-tex-select-newlines-with-envs nil))
-
-(use-package reftex
-  :hook TeX-mode)
-
 (use-package powershell
   :ensure t
   :mode (("\\.ps1\\'" . powershell-mode))
   :custom (powershell-indent 2))
 
-(use-package haskell-mode
-  :ensure t
-  :mode "\\.hs\\'")
-
-(use-package lsp-haskell
-  :ensure t
-  :hook haskell-mode)
-
-(use-package scheme
-  :mode "\\.\\(scm\\|sld\\)\\'"
-  :config
-  (put 'with-input-from-u8vector 'scheme-indent-function 1)
-  (add-hook 'scheme-mode-hook #'rainbow-delimiters-mode)
-  (add-hook 'scheme-mode-hook #'parinfer-rust-mode))
-
-(use-package geiser-gambit
-  :ensure t
-  :hook (sheme-mode . geiser-mode--maybe-activate))
-
-(use-package macrostep
-  :ensure t
-  :general (:keymaps 'lisp-mode-shared-map "C-c C-e" #'macrostep-expand))
-
-(use-package typer-mode
-  :load-path "typer"
-  :mode (("\\.typer\\'" . typer-mode)))
-
 (use-package ahk-mode
   :ensure t
-  :mode (("\\.ahk\\'" . ahk-mode)))
+  :mode (("\\.ahk\\'" . ahk-mode))
+  :custom (ahk-indentation 2))
 
 (use-package yaml-mode
   :ensure t
   :mode (("\\.ya?ml\\'" . yaml-mode)))
-
-(use-package erlang
-  :ensure t
-  :mode (("\\.erl\\'" . erlang-mode)
-         ("rebar\\.config\\'" . erlang-mode)))
 
 (use-package evil-collection
   :ensure t
@@ -412,23 +319,6 @@
   (with-eval-after-load 'custom (evil-collection-custom-setup))
   (with-eval-after-load 'dired (evil-collection-dired-setup))
   (with-eval-after-load 'magit (evil-collection-magit-setup)))
-
-(when-let ((agda-mode-path (executable-find "agda-mode")))
-  (load-file
-   (with-temp-buffer
-     (let ((coding-system-for-read 'utf-8))
-       (call-process agda-mode-path nil t nil "locate"))
-     (buffer-string))))
-
-(add-to-list 'auto-mode-alist '("\\.\\(agda\\|lagda\\.md\\)\\'" . agda2-mode))
-(defun my/set-input-method-agda ()
-  (set-input-method "Agda"))
-(defun my/set-input-method-nil ()
-  (set-input-method nil))
-(defun my/agda-mode-hook ()
-  (add-hook 'evil-insert-state-entry-hook #'my/set-input-method-agda 0 t)
-  (add-hook 'evil-insert-state-exit-hook #'my/set-input-method-nil 0 t))
-(add-hook 'agda2-mode-hook #'my/agda-mode-hook)
 
 (use-package ispell
   :defer t
@@ -447,19 +337,3 @@
 (define-key universal-argument-map (kbd "C-f") 'universal-argument-more)
 (with-eval-after-load 'evil-maps
   (define-key evil-motion-state-map (kbd "C-f") nil))
-
-(setq-default mode-line-format
-              '("%e"
-                mode-line-front-space
-                mode-line-mule-info
-                mode-line-client
-                mode-line-modified
-                mode-line-remote
-                mode-line-frame-identification
-                mode-line-buffer-identification
-                "   "
-                mode-line-position
-                "  "
-                mode-line-modes
-                mode-line-misc-info
-                mode-line-end-spaces))

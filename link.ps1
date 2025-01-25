@@ -30,6 +30,7 @@ $links = [ordered]@{
   "gitconfig" = (Join-Path $HOME ".gitconfig");
   "gitignore" = (Join-Path $HOME ".gitignore");
   "clang-tidy" = (Join-Path $HOME ".clang-tidy");
+  "ahk/keyboard.ahk" = (Join-Path ([Environment]::GetFolderPath("Startup")) "keyboard.ahk");
 }
 
 foreach ($pair in $links.GetEnumerator()) {
