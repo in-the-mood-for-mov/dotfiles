@@ -24,10 +24,6 @@
     (pcase-let ((`(,name . ,value) pair))
       (setenv name value))))
 
-(setq read-extended-command-predicate #'command-completion-default-include-p)
-(column-number-mode)
-(global-display-line-numbers-mode)
-
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("elpa" . "https://elpa.gnu.org/packages/")
@@ -58,12 +54,14 @@
   (indent-tabs-mode nil)
   (fill-column 80)
   (sentence-end-double-space nil)
-  (enable-recursive-minibuffers t)
-  (minibuffer-prompt-properties
-   '(read-only t cursor-intangible t face minibuffer-prompt))
   (visible-bell nil)
   (ring-bell-function 'ignore)
   (make-backup-files nil)
+
+  (enable-recursive-minibuffers t)
+  (read-extended-command-predicate #'command-completion-default-include-p)
+  (minibuffer-prompt-properties
+   '(read-only t cursor-intangible t face minibuffer-prompt))
 
   (modus-themes-bold-constructs t)
   (modus-themes-italic-constructs t)
@@ -73,6 +71,10 @@
 
   :config
   (load-theme 'modus-vivendi)
+
+  (column-number-mode)
+  (global-display-line-numbers-mode)
+
   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
   (add-hook 'before-save-hook #'whitespace-cleanup))
 
@@ -98,7 +100,7 @@
   :config (recentf-mode))
 
 (use-package savehist
-  :config (savehist-mode))
+  :init (savehist-mode))
 
 (use-package general
   :ensure t)
@@ -147,25 +149,26 @@
 
 (use-package corfu
   :ensure t
-  :custom (corfu-auto t)
+  :custom
+  (corfu-auto nil)
+  (corfu-quit-no-match 'separator)
   :general
-  (:keymaps 'corfu-map
-            "\r" nil)
-  :config
-  (defun my/corfu-enable-in-minibuffer ()
-    (when (where-is-internal #'completion-at-point (list (current-local-map)))
-      (corfu-mode 1)))
-  (add-hook 'minibuffer-setup-hook #'my/corfu-enable-in-minibuffer)
-  (global-corfu-mode))
+  (:states '(insert) "<tab>" #'completion-at-point)
+  :init
+  (global-corfu-mode)
+  (corfu-popupinfo-mode))
 
-(use-package corfu-popupinfo
-  :ensure corfu
-  :custom (corfu-popupinfo-delay t)
-  :config (corfu-popupinfo-mode))
+(use-package corfu-candidate-overlay
+  :ensure t
+  :after corfu
+  :general
+  (:states '(insert) "C-<tab>" #'corfu-candidate-overlay-complete-at-point)
+  :init
+  (corfu-candidate-overlay-mode +1))
 
 (use-package vertico
   :ensure t
-  :config (vertico-mode))
+  :init (vertico-mode))
 
 (use-package orderless
   :ensure t
@@ -306,9 +309,13 @@
   :mode (("\\.ahk\\'" . ahk-mode))
   :custom (ahk-indentation 2))
 
-(use-package yaml-mode
+(use-package yaml
   :ensure t
   :mode (("\\.ya?ml\\'" . yaml-mode)))
+
+(use-package yaml-pro
+  :ensure t
+  :hook (yaml-mode . yaml-pro-mode))
 
 (use-package evil-collection
   :ensure t
