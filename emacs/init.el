@@ -28,6 +28,7 @@
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("elpa" . "https://elpa.gnu.org/packages/")
                          ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+
 (package-initialize)
 (unless package-archive-contents
   (package-refresh-contents))
@@ -87,10 +88,10 @@
 (use-package faces
   :if window-system
   :config
-  (set-face-attribute 'default nil :font "Cascadia Code"
+  (set-face-attribute 'default nil :font "PragmataPro Mono"
                       :height
                       (pcase system-type
-                        ('darwin 210)
+                        ('darwin 170)
                         ('windows-nt 170)
                         ('gnu/linux 200)))
   (set-face-attribute 'fixed-pitch nil :family 'unspecified :inherit 'default))
@@ -157,14 +158,6 @@
   :init
   (global-corfu-mode)
   (corfu-popupinfo-mode))
-
-(use-package corfu-candidate-overlay
-  :ensure t
-  :after corfu
-  :general
-  (:states '(insert) "C-<tab>" #'corfu-candidate-overlay-complete-at-point)
-  :init
-  (corfu-candidate-overlay-mode +1))
 
 (use-package vertico
   :ensure t
@@ -245,18 +238,6 @@
   :config (magit-auto-revert-mode)
   :bind (("C-x g" . magit-status)))
 
-(use-package lsp-mode
-  :ensure t
-  :delight
-  :commands lsp-mode
-  :custom (lsp-keymap-prefix "C-;")
-  :config
-  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
-
-(use-package lsp-ui
-  :ensure t
-  :hook lsp-mode)
-
 (use-package flycheck
   :ensure t
   :delight
@@ -316,6 +297,30 @@
 (use-package yaml-pro
   :ensure t
   :hook (yaml-mode . yaml-pro-mode))
+
+(use-package erlang-ts
+  :ensure t
+  :mode (("[.]erl\\'" . erlang-ts-mode)
+         ("/rebar[.]config\\'" . erlang-ts-mode))
+  :init (setq erlang-electric-commands '()))
+
+(use-package lsp-mode
+  :ensure t
+  :delight
+  :commands lsp-mode
+  :custom
+  (lsp-keymap-prefix "C-'")
+  (lsp-enable-snippet nil)
+  :hook ((erlang-mode . lsp))
+  :init
+  :config
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.jj\\'")
+  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
+  (add-to-list 'lsp-language-id-configuration '(erlang-ts-mode . "erlang")))
+
+(use-package lsp-ui
+  :ensure t
+  :hook lsp-mode)
 
 (use-package evil-collection
   :ensure t
