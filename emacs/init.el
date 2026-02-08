@@ -5,47 +5,8 @@
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file t)
 
-(let* ((buffer (find-file-noselect (concat user-emacs-directory "path.s")))
-       (path (unwind-protect
-                 (with-current-buffer buffer
-                   (goto-char (point-min))
-                   (read (current-buffer)))
-               (kill-buffer buffer))))
-  (setq exec-path (seq-uniq (seq-concatenate 'list exec-path path)))
-  (setenv "PATH" (mapconcat #'identity exec-path path-separator)))
-
-(let* ((buffer (find-file-noselect (concat user-emacs-directory "env.s")))
-       (env (unwind-protect
-                (with-current-buffer buffer
-                  (goto-char (point-min))
-                  (read (current-buffer)))
-              (kill-buffer buffer))))
-  (dolist (pair env)
-    (pcase-let ((`(,name . ,value) pair))
-      (setenv name value))))
-
 (require 'package)
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("elpa" . "https://elpa.gnu.org/packages/")
-                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
-
-(package-initialize)
-(unless package-archive-contents
-  (package-refresh-contents))
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
-
-(eval-when-compile
-  (require 'use-package))
-(setq use-package-expand-minimally t)
-
-(use-package auto-compile
-  :ensure t
-  :custom
-  (load-prefer-newer t)
-  :config
-  (auto-compile-on-load-mode)
-  (auto-compile-on-save-mode))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 
 (use-package emacs
   :custom
@@ -54,6 +15,7 @@
 
   (indent-tabs-mode nil)
   (fill-column 80)
+  (require-final-newline t)
   (sentence-end-double-space nil)
   (visible-bell nil)
   (ring-bell-function 'ignore)
@@ -93,7 +55,7 @@
                       (pcase system-type
                         ('darwin 170)
                         ('windows-nt 170)
-                        ('gnu/linux 200)))
+                        ('gnu/linux 180)))
   (set-face-attribute 'fixed-pitch nil :family 'unspecified :inherit 'default))
 
 (use-package recentf
@@ -115,7 +77,8 @@
 (use-package projectile
   :ensure t
   :defer nil
-  :delight '(:eval (concat " ‹" (projectile-project-name) "›"))
+  :delight '(:eval (when (projectile-project-name)
+                     (concat " ‹" (projectile-project-name) "›")))
   :custom (projectile-completion-system 'default)
   :config (projectile-mode 1)
   :bind-keymap ("C-x p" . projectile-command-map))
@@ -233,6 +196,10 @@
   :commands (parinfer-rust-mode)
   :custom (parinfer-rust-auto-download t))
 
+(use-package vc
+  :custom
+  (vc-handled-backends nil))
+
 (use-package magit
   :ensure t
   :config (magit-auto-revert-mode)
@@ -290,19 +257,20 @@
   :mode (("\\.ahk\\'" . ahk-mode))
   :custom (ahk-indentation 2))
 
-(use-package yaml
-  :ensure t
-  :mode (("\\.ya?ml\\'" . yaml-mode)))
-
-(use-package yaml-pro
-  :ensure t
-  :hook (yaml-mode . yaml-pro-mode))
-
 (use-package erlang-ts
   :ensure t
   :mode (("[.]erl\\'" . erlang-ts-mode)
          ("/rebar[.]config\\'" . erlang-ts-mode))
   :init (setq erlang-electric-commands '()))
+
+(use-package treesit-auto
+  :ensure t
+  :if (not (eq system-type 'windows-nt))
+  :custom
+  (treesit-auto-install 'prompt)
+  :config
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode))
 
 (use-package lsp-mode
   :ensure t
@@ -311,7 +279,8 @@
   :custom
   (lsp-keymap-prefix "C-'")
   (lsp-enable-snippet nil)
-  :hook ((erlang-mode . lsp))
+  :hook ((erlang-mode . lsp-deffered)
+         (lsp-mode . lsp-enable-which-key-integration))
   :init
   :config
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.jj\\'")
@@ -320,7 +289,19 @@
 
 (use-package lsp-ui
   :ensure t
-  :hook lsp-mode)
+  :commands lsp-ui-mode
+  :custom
+  (lsp-ui-doc-enable t)
+  (lsp-ui-doc-show-with-cursor nil)
+  (lsp-ui-doc-show-with-mouse nil)
+  (lsp-ui-doc-position 'at-point)
+  (lsp-ui-doc-include-signature t)
+  (lsp-ui-doc-max-width 80)
+  (lsp-ui-doc-max-height 20)
+  (lsp-ui-doc-use-childframe t)
+  (lsp-ui-sideline-enable t)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-peek-enable t))
 
 (use-package evil-collection
   :ensure t
