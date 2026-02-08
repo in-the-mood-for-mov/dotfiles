@@ -196,6 +196,11 @@
   :commands (parinfer-rust-mode)
   :custom (parinfer-rust-auto-download t))
 
+(use-package beads
+  :ensure t
+  :vc (:url "https://codeberg.org/ctietze/beads.el" :lisp-dir "lisp" :rev :newest)
+  :commands (beads beads-list beads-activity))
+
 (use-package vc
   :custom
   (vc-handled-backends nil))

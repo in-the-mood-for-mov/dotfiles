@@ -6,6 +6,7 @@ TAGS
 .dir-locals.el
 
 .idea/
+.claude/
 *.iml
 *.DotSettings.user
 

@@ -2,3 +2,4 @@
 set -euxo pipefail
 
 install -Dt ~/.config/emacs emacs/{early-init,init}.el
+install -Dt ~/.config/git git/{config,ignore}

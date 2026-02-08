@@ -1,6 +1,5 @@
 [core]
 editor = emacs
-excludesFile = C:/Users/simon/.gitignore
 pager = less
 
 [color]
@@ -23,4 +22,5 @@ defaultBranch = trunk
 colorMoved = zebra
 
 [credential]
+credentialStore = secretservice
 helper = manager
