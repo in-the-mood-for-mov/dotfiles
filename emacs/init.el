@@ -268,12 +268,23 @@
          ("/rebar[.]config\\'" . erlang-ts-mode))
   :init (setq erlang-electric-commands '()))
 
+(use-package pkl-ts-mode
+  :load-path "site-lisp/pkl-ts-mode"
+  :mode (("\\.pkl\\'" . pkl-ts-mode)
+         ("\\.pcf\\'" . pkl-ts-mode)))
+
 (use-package treesit-auto
   :ensure t
   :if (not (eq system-type 'windows-nt))
   :custom
   (treesit-auto-install 'prompt)
   :config
+  (add-to-list 'treesit-auto-recipe-list
+               (make-treesit-auto-recipe
+                :lang 'pkl
+                :ts-mode 'pkl-ts-mode
+                :url "https://github.com/apple/tree-sitter-pkl"
+                :ext "\\.\\(pkl\\|pcf\\)\\'"))
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
