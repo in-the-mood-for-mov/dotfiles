@@ -15,6 +15,9 @@ prune = true
 [pull]
 rebase = true
 
+[push]
+autoSetupRemote = true
+
 [init]
 defaultBranch = trunk
 
