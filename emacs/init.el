@@ -201,10 +201,6 @@
   :vc (:url "https://codeberg.org/ctietze/beads.el" :lisp-dir "lisp" :rev :newest)
   :commands (beads beads-list beads-activity))
 
-(use-package vc
-  :custom
-  (vc-handled-backends nil))
-
 (use-package magit
   :ensure t
   :config (magit-auto-revert-mode)
@@ -269,7 +265,7 @@
   :init (setq erlang-electric-commands '()))
 
 (use-package pkl-ts-mode
-  :load-path "site-lisp/pkl-ts-mode"
+  :vc (:url "https://github.com/in-the-mood-for-mov/pkl-ts-mode.git" :rev :newest)
   :mode (("\\.pkl\\'" . pkl-ts-mode)
          ("\\.pcf\\'" . pkl-ts-mode)))
 

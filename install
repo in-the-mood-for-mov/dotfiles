@@ -2,5 +2,4 @@
 set -euxo pipefail
 
 install -Dt ~/.config/emacs emacs/{early-init,init}.el
-install -Dt ~/.config/emacs/site-lisp/pkl-ts-mode emacs/site-lisp/pkl-ts-mode/pkl-ts-mode.el
 install -Dt ~/.config/git git/{config,ignore}
