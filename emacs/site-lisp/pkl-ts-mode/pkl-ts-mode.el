@@ -103,6 +103,26 @@
    '(["(" ")" "[" "]" "{" "}"] @font-lock-bracket-face))
   "Font-lock settings for `pkl-ts-mode'.")
 
+(defvar pkl-ts-mode--indent-rules
+  `((pkl
+     ((parent-is "module") column-0 0)
+     ((node-is "}") parent-bol 0)
+     ((node-is ")") parent-bol 0)
+     ((node-is "]") parent-bol 0)
+     ((parent-is "classBody") parent-bol pkl-ts-mode-indent-offset)
+     ((parent-is "objectBody") parent-bol pkl-ts-mode-indent-offset)
+     ((parent-is "parameterList") parent-bol pkl-ts-mode-indent-offset)
+     ((parent-is "argumentList") parent-bol pkl-ts-mode-indent-offset)
+     ((parent-is "typeArgumentList") parent-bol pkl-ts-mode-indent-offset)
+     ((parent-is "blockComment") prev-adaptive-prefix 0)
+     (no-node parent-bol 0)))
+  "Tree-sitter indentation rules for Pkl.")
+
+(defcustom pkl-ts-mode-indent-offset 2
+  "Number of spaces for each indentation level in `pkl-ts-mode'."
+  :type 'integer
+  :group 'pkl)
+
 ;;;###autoload
 (define-derived-mode pkl-ts-mode prog-mode "Pkl"
   "Major mode for editing Pkl files, powered by tree-sitter."
@@ -115,6 +135,7 @@ Install it with M-x treesit-install-language-grammar RET pkl RET"))
   (setq-local comment-start "// ")
   (setq-local comment-end "")
 
+  (setq-local treesit-simple-indent-rules pkl-ts-mode--indent-rules)
   (setq-local treesit-font-lock-settings pkl-ts-mode--font-lock-settings)
   (setq-local treesit-font-lock-feature-list
               '((comment string)
