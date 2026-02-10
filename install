@@ -3,3 +3,11 @@ set -euxo pipefail
 
 install -Dt ~/.config/emacs emacs/{early-init,init}.el
 install -Dt ~/.config/git git/{config,ignore}
+install zsh/profile ~/.zprofile
+install zsh/rc ~/.zshrc
+install -d ~/.local/share/zsh/site-functions/
+if [[ ! -e ~/.local/share/zsh/site-functions/_bd ]]; then
+  if command -v bd &> /dev/null; then
+    bd completion zsh > ~/.local/share/zsh/site-functions/_bd
+  fi
+fi

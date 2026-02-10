@@ -1,0 +1,27 @@
+# -*- mode: sh; sh-shell: zsh -*-
+
+state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
+[[ -d "$state_home" ]] || mkdir -p "$state_home"
+
+fpath=(
+  ~/.local/share/zsh/site-functions
+  $fpath
+)
+
+autoload -U compinit
+compinit C
+
+export LANG=en_CA.utf-8
+
+export HISTFILE="${state_home}/zsh_history"
+export HISTSIZE=9999
+export SAVEHIST=9999
+setopt extended_history
+setopt hist_expire_dups_first
+setopt hist_ignore_dups
+setopt hist_ignore_space
+setopt hist_reduce_blanks
+setopt hist_verify
+setopt share_history
+
+PS1='%F{magenta}%~ %(?.%F{green}.%F{red})%#%f '
