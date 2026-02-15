@@ -264,25 +264,16 @@
          ("/rebar[.]config\\'" . erlang-ts-mode))
   :init (setq erlang-electric-commands '()))
 
-(use-package pkl-ts-mode
-  :vc (:url "https://github.com/in-the-mood-for-mov/pkl-ts-mode.git" :rev :newest)
-  :mode (("\\.pkl\\'" . pkl-ts-mode)
-         ("\\.pcf\\'" . pkl-ts-mode)))
+(use-package xref
+  :general (:states '(normal) "M-." #'xref-find-definitions))
 
-(use-package treesit-auto
+(use-package pkl-ts-mode
   :ensure t
-  :if (not (eq system-type 'windows-nt))
-  :custom
-  (treesit-auto-install 'prompt)
+  :vc (:url "https://github.com/in-the-mood-for-mov/pkl-ts-mode.git")
+  :mode (("\\.\\(pkl\\|pcf\\)\\'" . pkl-ts-mode))
   :config
-  (add-to-list 'treesit-auto-recipe-list
-               (make-treesit-auto-recipe
-                :lang 'pkl
-                :ts-mode 'pkl-ts-mode
-                :url "https://github.com/apple/tree-sitter-pkl"
-                :ext "\\.\\(pkl\\|pcf\\)\\'"))
-  (treesit-auto-add-to-auto-mode-alist 'all)
-  (global-treesit-auto-mode))
+  (pkl-ts-mode-eglot-init)
+  (add-hook 'pkl-ts-mode-hook #'eglot-ensure))
 
 (use-package lsp-mode
   :ensure t
