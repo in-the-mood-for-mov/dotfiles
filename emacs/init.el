@@ -55,7 +55,7 @@
                       (pcase system-type
                         ('darwin 170)
                         ('windows-nt 170)
-                        ('gnu/linux 180)))
+                        ('gnu/linux 160)))
   (set-face-attribute 'fixed-pitch nil :family 'unspecified :inherit 'default))
 
 (use-package recentf
@@ -220,6 +220,11 @@
   (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
   (add-hook 'emacs-lisp-mode-hook #'parinfer-rust-mode)
   (add-hook 'emacs-lisp-mode-hool #'flycheck-mode))
+
+(use-package sh
+  :defer t
+  :custom
+  (sh-basic-offset 2))
 
 (use-package org
   :ensure t
